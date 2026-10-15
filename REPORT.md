@@ -121,37 +121,37 @@ The complete experimental pipeline was executed end-to-end in Python 3.11 using 
 
 All figures below derive directly from our live execution:
 
-![Figure 1. Test set confusion matrices grid comparing Baseline, SMOTE, and Novel models](/Users/pranil/Desktop/SML/results/figures/confusion_matrices_grid.png)
+![Figure 1. Test set confusion matrices grid comparing Baseline, SMOTE, and Novel models](results/figures/confusion_matrices_grid.png)
 *Figure 1. Test set confusion matrices across Baseline, SMOTE-trained, and Novel models ($N=20,000$, Seed 42).*
 
-![Figure 2. Empirical distribution of Benign vs. Malicious traffic and flow duration density](/Users/pranil/Desktop/SML/results/figures/eda_class_and_feature_distribution.png)
+![Figure 2. Empirical distribution of Benign vs. Malicious traffic and flow duration density](results/figures/eda_class_and_feature_distribution.png)
 *Figure 2. Empirical distribution of Benign vs. Malicious traffic and flow duration density.*
 
-![Figure 3. Receiver Operating Characteristic (ROC) and Precision-Recall curves comparing all models](/Users/pranil/Desktop/SML/results/figures/roc_pr_curves_comparison.png)
+![Figure 3. Receiver Operating Characteristic (ROC) and Precision-Recall curves comparing all models](results/figures/roc_pr_curves_comparison.png)
 *Figure 3. Receiver Operating Characteristic (ROC) and Precision-Recall curves comparing Baseline, SMOTE, and Novel models.*
 
-![Figure 4. Training Partition Class Distribution Before vs. After SMOTE and 2D PCA Manifold Projection](/Users/pranil/Desktop/SML/results/figures/smote_class_balance_comparison.png)
+![Figure 4. Training Partition Class Distribution Before vs. After SMOTE and 2D PCA Manifold Projection](results/figures/smote_class_balance_comparison.png)
 *Figure 4. Training Partition Class Distribution Before vs. After SMOTE and 2D PCA Manifold Projection.*
 
-![Figure 5. SHAP Global Summary Beeswarm Plot showing directional feature impact](/Users/pranil/Desktop/SML/results/figures/shap_summary_beeswarm.png)
+![Figure 5. SHAP Global Summary Beeswarm Plot showing directional feature impact](results/figures/shap_summary_beeswarm.png)
 *Figure 5. SHAP Global Summary Beeswarm Plot showing directional feature impact on intrusion classification.*
 
-![Figure 6. SHAP Mean Absolute Impact Bar Chart (|SHAP|) ranking top 15 global flow drivers](/Users/pranil/Desktop/SML/results/figures/shap_global_importance_bar.png)
+![Figure 6. SHAP Mean Absolute Impact Bar Chart (|SHAP|) ranking top 15 global flow drivers](results/figures/shap_global_importance_bar.png)
 *Figure 6. SHAP Mean Absolute Impact Bar Chart ($|SHAP|$) ranking top 15 global flow drivers.*
 
-![Figure 7. SHAP Non-Linear Feature Dependence Plot showing interaction between top flow features](/Users/pranil/Desktop/SML/results/figures/shap_dependence_interactions.png)
+![Figure 7. SHAP Non-Linear Feature Dependence Plot showing interaction between top flow features](results/figures/shap_dependence_interactions.png)
 *Figure 7. SHAP Non-Linear Feature Dependence Plot showing interaction between top flow features.*
 
-![Figure 8. SHAP Local Incident-Forensic Waterfall Analysis across 3 operational flow cases](/Users/pranil/Desktop/SML/results/figures/shap_local_waterfall_analysis.png)
+![Figure 8. SHAP Local Incident-Forensic Waterfall Analysis across 3 operational flow cases](results/figures/shap_local_waterfall_analysis.png)
 *Figure 8. SHAP Local Incident-Forensic Waterfall Analysis: True Positive attack flow (Case 1), True Negative benign flow (Case 2), and Borderline operational flow (Case 3).*
 
-![Figure 9. Top 15 network flow features ranked by Random Forest MDI Gini importance and Mutual Information](/Users/pranil/Desktop/SML/results/figures/feature_selection_comparison.png)
+![Figure 9. Top 15 network flow features ranked by Random Forest MDI Gini importance and Mutual Information](results/figures/feature_selection_comparison.png)
 *Figure 9. Top 15 network flow features ranked by Random Forest MDI Gini importance and Mutual Information.*
 
-![Figure 10. Multiclass confusion matrix heatmap for Random Forest across 14 authentic attack categories](/Users/pranil/Desktop/SML/results/figures/multiclass_confusion_matrix_rf.png)
+![Figure 10. Multiclass confusion matrix heatmap for Random Forest across 14 authentic attack categories](results/figures/multiclass_confusion_matrix_rf.png)
 *Figure 10. Multiclass confusion matrix heatmap for Random Forest across 14 authentic attack categories.*
 
-![Figure 11. Master Model Comparative Dashboard: F1-Score, FPR, and Inference Latency](/Users/pranil/Desktop/SML/results/figures/model_comparative_dashboard.png)
+![Figure 11. Master Model Comparative Dashboard: F1-Score, FPR, and Inference Latency](results/figures/model_comparative_dashboard.png)
 *Figure 11. Master Model Comparative Dashboard: F1-Score, False Positive Rate (FPR), and Inference Latency.*
 
 ---
@@ -232,12 +232,13 @@ Following the initial study, we expanded the investigation into a publication-gr
 #### 7.2 15-Architecture Operational Benchmark (5 Repeated Seeds, Mean ± Std)
 Evaluated on genuine temporal drift (Tuesday/Wednesday train $\to$ Monday/Thursday cal $\to$ Friday test):
 
-| Architecture | Recall @ FPR=0.1% | Recall @ FPR=0.01% | PR-AUC | Bayes Prec ($10^{-3}$) | Macro-F1 | Line Latency |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Deep-FTTransformer** | **31.18 $\pm$ 0.24%** | **31.09 $\pm$ 0.24%** | **0.8267 $\pm$ 0.0541** | **23.79 $\pm$ 0.14%** | **0.6509 $\pm$ 0.0016** | 61.3 $\mu$s |
-| **Deep-LSTM** | 31.11 $\pm$ 0.41% | 29.98 $\pm$ 1.64% | 0.7572 $\pm$ 0.0492 | 23.74 $\pm$ 0.24% | 0.6504 $\pm$ 0.0028 | 2.8 $\mu$s |
-| **Deep-MLP** | 30.53 $\pm$ 0.70% | 29.34 $\pm$ 1.28% | 0.8243 $\pm$ 0.0481 | 23.41 $\pm$ 0.42% | 0.6463 $\pm$ 0.0048 | 0.15 $\mu$s |
-| **Deep-1DCNN** | 30.61 $\pm$ 0.22% | 27.67 $\pm$ 4.12% | 0.8378 $\pm$ 0.0257 | 23.45 $\pm$ 0.13% | 0.6469 $\pm$ 0.0016 | 74.1 $\mu$s |
+| Architecture | Accuracy | Recall @ FPR=0.1% | Recall @ FPR=0.01% | PR-AUC | Bayes Prec ($10^{-3}$) | Macro-F1 | Line Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Proposed-TwoStage-Adapted** | **98.73 $\pm$ 0.13%** | **69.05 $\pm$ 13.35%** | **42.34 $\pm$ 12.94%** | **0.9946 $\pm$ 0.0021** | **40.49 $\pm$ 4.83%** | **0.9866 $\pm$ 0.0014** | 2.91 $\mu$s |
+| **Deep-FTTransformer** | 72.71 $\pm$ 0.74% | 31.18 $\pm$ 0.24% | **31.09 $\pm$ 0.24%** | 0.8267 $\pm$ 0.0541 | 23.79 $\pm$ 0.14% | 0.6509 $\pm$ 0.0016 | 56.1 $\mu$s |
+| **Deep-LSTM** | 71.11 $\pm$ 0.94% | 31.11 $\pm$ 0.41% | 29.98 $\pm$ 1.64% | 0.7572 $\pm$ 0.0492 | 23.74 $\pm$ 0.24% | 0.6504 $\pm$ 0.0028 | 2.9 $\mu$s |
+| **Deep-MLP** | 73.36 $\pm$ 4.33% | 30.53 $\pm$ 0.70% | 29.34 $\pm$ 1.28% | 0.8243 $\pm$ 0.0481 | 23.41 $\pm$ 0.42% | 0.6463 $\pm$ 0.0048 | 0.21 $\mu$s |
+| **Deep-1DCNN** | 73.42 $\pm$ 1.94% | 30.61 $\pm$ 0.22% | 27.67 $\pm$ 4.12% | 0.8378 $\pm$ 0.0257 | 23.45 $\pm$ 0.13% | 0.6469 $\pm$ 0.0016 | 78.7 $\mu$s |
 | **CatBoost-Balanced** | 17.00 $\pm$ 8.66% | 7.57 $\pm$ 2.69% | 0.8304 $\pm$ 0.0392 | 14.08 $\pm$ 6.27% | 0.5386 $\pm$ 0.0707 | **0.097 $\mu$s** |
 | **TabNet** | 20.45 $\pm$ 12.55% | 18.88 $\pm$ 13.63% | 0.7945 $\pm$ 0.0390 | 16.01 $\pm$ 9.44% | 0.5623 $\pm$ 0.1064 | 8.1 $\mu$s |
 | **Proposed-TwoStage-SHAP** | 14.00 $\pm$ 13.09% | 8.28 $\pm$ 8.55% | 0.6983 $\pm$ 0.0520 | 11.15 $\pm$ 9.88% | 0.1348 $\pm$ 0.0030 | 2.0 $\mu$s |

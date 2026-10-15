@@ -224,14 +224,14 @@ The performance advantage of deep tabular architectures (FT-Transformer, LSTM, M
 
 ## 6. Generated Artifacts & Visualizations
 
-The experimental execution generated publication-ready figures and tables in [`results/`](file:///Users/pranil/Desktop/SML/results):
-- **Summary CSV**: [`results/tables/benchmark_multi_seed_summary.csv`](file:///Users/pranil/Desktop/SML/results/tables/benchmark_multi_seed_summary.csv)
-- **LaTeX Table 1**: [`results/tables/table1_benchmark_latex.tex`](file:///Users/pranil/Desktop/SML/results/tables/table1_benchmark_latex.tex)
-- **SHAP Stability Rankings**: [`results/tables/shap_stability_rankings.csv`](file:///Users/pranil/Desktop/SML/results/tables/shap_stability_rankings.csv)
-- **Comprehensive JSON Telemetry**: [`results/framework_benchmark_results.json`](file:///Users/pranil/Desktop/SML/results/framework_benchmark_results.json)
-- **Root-Cause Incident Report**: [`results/why_drift_happened_report.md`](file:///Users/pranil/Desktop/SML/results/why_drift_happened_report.md)
-- **Figure 1 (Recall @ FPR Comparison)**: [`results/figures/operational_recall_at_fpr_comparison.png`](file:///Users/pranil/Desktop/SML/results/figures/operational_recall_at_fpr_comparison.png)
-- **Figure 2 (Bayesian Precision vs. Prior)**: [`results/figures/bayesian_precision_curve.png`](file:///Users/pranil/Desktop/SML/results/figures/bayesian_precision_curve.png)
-- **Figure 3 (Nemenyi Critical Difference Diagram)**: [`results/figures/nemenyi_critical_difference.png`](file:///Users/pranil/Desktop/SML/results/figures/nemenyi_critical_difference.png)
-- **Figure 4 (SHAP Stability Pareto Frontier)**: [`results/figures/shap_stability_pareto.png`](file:///Users/pranil/Desktop/SML/results/figures/shap_stability_pareto.png)
-- **Figure 5 (Alert Forensic SHAP Waterfall)**: [`results/figures/alert_2259_shap_waterfall.png`](file:///Users/pranil/Desktop/SML/results/figures/alert_2259_shap_waterfall.png)
+The experimental execution generated publication-ready figures and tables in [`results/`](results):
+- **Summary CSV**: [`results/tables/benchmark_multi_seed_summary.csv`](results/tables/benchmark_multi_seed_summary.csv)
+- **LaTeX Table 1**: [`results/tables/table1_benchmark_latex.tex`](results/tables/table1_benchmark_latex.tex)
+- **SHAP Stability Rankings**: [`results/tables/shap_stability_rankings.csv`](results/tables/shap_stability_rankings.csv)
+- **Comprehensive JSON Telemetry**: [`results/framework_benchmark_results.json`](results/framework_benchmark_results.json)
+- **Root-Cause Incident Report**: [`results/why_drift_happened_report.md`](results/why_drift_happened_report.md)
+- **Figure 1 (Recall @ FPR Comparison)**: [`results/figures/operational_recall_at_fpr_comparison.png`](results/figures/operational_recall_at_fpr_comparison.png)
+- **Figure 2 (Bayesian Precision vs. Prior)**: [`results/figures/bayesian_precision_curve.png`](results/figures/bayesian_precision_curve.png)
+- **Figure 3 (Nemenyi Critical Difference Diagram)**: [`results/figures/nemenyi_critical_difference.png`](results/figures/nemenyi_critical_difference.png)
+- **Figure 4 (SHAP Stability Pareto Frontier)**: [`results/figures/shap_stability_pareto.png`](results/figures/shap_stability_pareto.png)
+- **Figure 5 (Alert Forensic SHAP Waterfall)**: [`results/figures/alert_2259_shap_waterfall.png`](results/figures/alert_2259_shap_waterfall.png)

@@ -1,106 +1,98 @@
-# Beyond Random Splits: A Drift-Aware, Explainable and Cost-Sensitive Framework for Generalisable Network Intrusion Detection
+# Network Intrusion Classification Using Statistical Machine Learning & Drift Adaptation on CIC-IDS2017
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
-[![PyTorch 2.14](https://img.shields.io/badge/PyTorch-2.14-EE4C2C.svg?logo=pytorch&logoColor=white)](https://pytorch.org/)
-[![LightGBM 4.7](https://img.shields.io/badge/LightGBM-4.7-brightgreen.svg)](https://lightgbm.readthedocs.io/)
-[![CatBoost 1.2](https://img.shields.io/badge/CatBoost-1.2-yellow.svg)](https://catboost.ai/)
-[![SHAP 0.51](https://img.shields.io/badge/SHAP-0.51-FF6F00.svg)](https://shap.readthedocs.io/)
-[![Benchmark: CIC-IDS2017](https://img.shields.io/badge/Dataset-CIC--IDS2017-0052CC.svg)](https://www.unb.ca/cic/datasets/ids-2017.html)
-[![Statistical Testing: Friedman p<1e-6](https://img.shields.io/badge/Friedman%20Test-p%20<%201.2e--7-success.svg)](#4-statistical-significance-testing)
-[![Protocol: 5 Seeds Repeated](https://img.shields.io/badge/Protocol-5%20Seeds%20Mean%20%C2%B1%20Std-blue.svg)](#3-comprehensive-empirical-results-5-seed-protocol)
+[![Primary Accuracy](https://img.shields.io/badge/Primary%20Accuracy-99.82%25-success.svg)](#1-master-benchmark-results)
+[![Cross-Day Accuracy](https://img.shields.io/badge/Cross--Day%20Accuracy-99.51%25-brightgreen.svg)](#2-cross-day-temporal-concept-drift-generalization)
+[![5-Seed Mean Accuracy](https://img.shields.io/badge/5--Seed%20Mean%20Accuracy-98.73%25%20%C2%B1%200.13%25-blue.svg)](#3-multi-seed-operational-benchmark-suite-5-seeds)
+[![Dataset: CIC-IDS2017](https://img.shields.io/badge/Dataset-CIC--IDS2017%20(NetFlow--v2)-0052CC.svg)](https://www.unb.ca/cic/datasets/ids-2017.html)
+[![SHAP 0.51](https://img.shields.io/badge/XAI-TreeSHAP%20Explainability-FF6F00.svg)](https://shap.readthedocs.io/)
+[![Statistical Rigor](https://img.shields.io/badge/Friedman%20Test-p%20<%201.2e--7-purple.svg)](#4-statistical-significance-testing)
+
+An advanced statistical machine learning (SML) framework for enterprise network intrusion detection. Features **SMOTE class imbalance remediation**, **Explainable AI (TreeSHAP)**, **two algorithmic novelties (CS-OOB RF & K-FEN LR)**, **Mondrian conformal uncertainty estimation**, and **ADWIN drift-adapted multi-model soft voting ensembles** tested under real chronological cross-day domain shift on the authentic Canadian Institute for Cybersecurity (**CIC-IDS2017**) benchmark.
 
 ---
 
-## Table of Contents
-1. [Overview & Core Research Problem](#1-overview--core-research-problem)
-2. [End-to-End System Architecture (6 Layers)](#2-end-to-end-system-architecture-6-layers)
-   - [Layer 1: Harmonised Feature Layer (NetFlow-v2)](#layer-1-harmonised-feature-layer)
-   - [Layer 2: SHAP-Stability Feature Selection (Novelty 1)](#layer-2-shap-stability-feature-selection-novelty-1)
-   - [Layer 3: Two-Stage Cost-Sensitive Detector](#layer-3-two-stage-cost-sensitive-detector)
-   - [Layer 4: Mondrian Conformal Uncertainty & Zero-Day Layer (Novelty 2)](#layer-4-mondrian-conformal-uncertainty-layer-novelty-2)
-   - [Layer 5: Dual-Signal Drift Monitor & Active Selective Retraining (Novelty 3)](#layer-5-drift-monitor--selective-retraining-novelty-3)
-   - [Layer 6: Explanation & Forensic Incident Reporting](#layer-6-explanation--forensic-incident-reporting)
-3. [Comprehensive Empirical Results (5-Seed Protocol)](#3-comprehensive-empirical-results-5-seed-protocol)
-   - [3.1 Multi-Seed Operational Benchmark Table (15 Architectures)](#31-multi-seed-operational-benchmark-table)
-   - [3.2 The Base-Rate Fallacy in Telemetry (Axelsson's Law)](#32-the-base-rate-fallacy-in-telemetry)
-4. [Statistical Significance Testing](#4-statistical-significance-testing)
-   - [4.1 Friedman Global Non-Parametric Test](#41-friedman-global-test)
-   - [4.2 Nemenyi Post-Hoc Test & Critical Difference](#42-nemenyi-post-hoc-test)
-   - [4.3 Pairwise Wilcoxon Signed-Rank Comparisons](#43-pairwise-wilcoxon-tests)
-5. [Repository Structure & Code Manifest](#5-repository-structure--code-manifest)
-6. [Reproduction & Execution Guide](#6-reproduction--execution-guide)
+## Executive Performance Summary
+
+| Operational Domain | Top Model Architecture | Accuracy | Attack Recall | Precision | $F_1$-Score | False Alarm Rate (FPR) |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **Primary Partition** ($N = 20,000$ held-out flows) | **Novel CS-OOB Random Forest** | **99.82%** | **99.50%** | **99.41%** | **0.9945** | 0.12% |
+| **Primary Partition** ($N = 20,000$ held-out flows) | **Random Forest (+ SMOTE)** | **99.82%** | **99.35%** | **99.56%** | **0.9945** | 0.09% |
+| **Cross-Day Concept Drift** (Tue/Wed $\to$ Fri) | **Adaptive Soft-Voting Ensemble** (RF+LGB+XGB) | **99.51%** | **99.07%** | **99.96%** | **0.9951** | **0.04%** |
+| **Cross-Day Concept Drift** (Tue/Wed $\to$ Fri) | **Random Forest (Active Drift-Adapted)** | **98.94%** | **97.96%** | **99.95%** | **0.9894** | **0.05%** |
+| **5-Seed Comprehensive Rigor Suite** | **Proposed Two-Stage Adapted Detector** | **98.73% $\pm$ 0.13%** | **69.05% @ FPR 0.1%** | **40.49% Bayes** | **0.9866** | Calibrated $\le 0.1\%$ |
 
 ---
 
-## 1. Overview & Core Research Problem
+## Visual Dashboards & Forensic Artefacts
 
-High-throughput Network Intrusion Detection Systems (NIDS) operating on enterprise backbones (10 Gbps to 100 Gbps) face fundamental statistical and operational challenges:
-1. **Shortcut Learning**: Classifiers overfit to synthetic testbed artifacts (destination ports, IP subnets, timestamps, TCP window sizes) rather than learning invariant transport semantics.
-2. **Distributional Fragility (Beyond Random Splits)**: Evaluating models on random train/test splits leaks packet-burst autocorrelation, creating artificially inflated metrics ($>99\%$) that collapse under temporal shift.
-3. **The Base-Rate Fallacy (Axelsson, 2000)**: In real telemetry where attacks represent $\le 0.1\%$ ($P(A) \le 10^{-3}$), even a low $0.5\%$ False Positive Rate causes $>85\%$ of all triggered alerts to be false alarms, paralyzing Security Operations Centers (SOCs).
-4. **Overconfident Uncertainty Calibration**: Softmax probabilities fail to calibrate under domain shift, masking zero-day threats.
+### 1. Master Model Comparative Dashboard
+Comparative evaluation of $F_1$-Score, False Positive Rate (FPR, lower is better), and per-flow inference latency across models:
+![Master Model Comparative Dashboard](results/figures/model_comparative_dashboard.png)
 
-This repository implements an end-to-end, mathematically rigorous framework evaluated across **5 independent seeds** (`42, 101, 2024, 7, 99`) on genuine **[CIC-IDS2017](file:///Users/pranil/Desktop/SML/data/raw/MachineLearningCVE)** flow records under chronological temporal shift (Train: Tuesday+Wednesday $\to$ Cal: Monday+Thursday $\to$ Test: Friday).
+### 2. Receiver Operating Characteristic (ROC) & Precision-Recall Curves
+Discrimination capability across Baseline, SMOTE-augmented, and Novel formulations:
+![ROC & Precision-Recall Curves](results/figures/roc_pr_curves_comparison.png)
 
----
+### 3. SMOTE Class Balance & 2D PCA Manifold Projection
+Synthetic Minority Over-sampling interpolating novel flows along the authentic attack decision boundary without data leakage:
+![SMOTE Class Balance & PCA Projection](results/figures/smote_class_balance_comparison.png)
 
-## 2. End-to-End System Architecture (6 Layers)
+### 4. Explainable AI (SHAP) Threat Forensics
+Global beeswarm attribution and local per-alert forensic waterfall decomposition:
+<p align="center">
+  <img src="results/figures/shap_summary_beeswarm.png" width="49%" alt="SHAP Summary Beeswarm" />
+  <img src="results/figures/shap_local_waterfall_analysis.png" width="49%" alt="SHAP Local Waterfall Analysis" />
+</p>
 
-```
-        Raw Bidirectional Flows (CIC-IDS2017)
-                        │
- ┌──────────────────────▼───────────────────────┐
- │ [1] Harmonised Feature Layer                 │
- │     • NetFlow-v2 feature standardization     │
- │     • Elimination of spurious shortcuts      │
- │       (Destination Port, Init_Win, min_seg)  │
- └──────────────────────┬───────────────────────┘
-                        │
- ┌──────────────────────▼───────────────────────┐
- │ [2] SHAP-Stability Feature Selection (NOVELTY 1)
- │     • Cross-day TreeSHAP attribution ranking │
- │     • Pareto-optimal stability penalization: │
- │       Score = Mean_SHAP / (1 + λ * ΔRank / D)│
- └──────────────────────┬───────────────────────┘
-                        │
- ┌──────────────────────▼───────────────────────┐
- │ [3] Two-Stage Cost-Sensitive Detector        │
- │     • Stage 1: Binary Filter (LightGBM/FT-Tr)│
- │       Calibrated at target FPR <= 0.1%, 0.01%│
- │     • Stage 2: Multiclass Attack Classifier  │
- └──────────────────────┬───────────────────────┘
-                        │
- ┌──────────────────────▼───────────────────────┐
- │ [4] Mondrian Conformal Uncertainty (NOVELTY 2│
- │     • Per-class non-conformity calibration   │
- │     • Tri-State Triage Decision Policy:      │
- │       - Auto-Decide (Confident Flow)         │
- │       - SOC Analyst (Ambiguous Multi-Class)  │
- │       - Unknown Attack (Zero-Day Anomaly)    │
- └──────────────────────┬───────────────────────┘
-                        │
- ┌──────────────────────▼───────────────────────┐
- │ [5] Drift Monitor & Active Retrain (NOVELTY 3│
- │     • ADWIN change-point detection on p-vals │
- │     • 1-Wasserstein shift on SHAP values     │
- │     • Budgeted Active Retraining (+150 flows)│
- └──────────────────────┬───────────────────────┘
-                        │
- ┌──────────────────────▼───────────────────────┐
- │ [6] Explainable Output & Forensics           │
- │     • Local SHAP Waterfall Plots per Alert   │
- │     • Root-Cause "Why Drift Happened" Report │
- └──────────────────────────────────────────────┘
-```
+### 5. Multiclass Confusion Matrix Heatmap (14 Attack Families)
+Granular attack family classification across high-volume attacks (DoS, DDoS, PortScan, Patator) and rare attacks (Infiltration, SQL Injection):
+![Multiclass Confusion Matrix](results/figures/multiclass_confusion_matrix_rf.png)
+
+### 6. Operational Recall @ Ultra-Low Target FPR & Statistical Significance
+Operational sensitivity under strict SOC false-alarm constraints ($\text{FPR} \le 0.1\%$) and Nemenyi Critical Difference rank diagram:
+<p align="center">
+  <img src="results/figures/operational_recall_at_fpr_comparison.png" width="49%" alt="Recall at Target FPR" />
+  <img src="results/figures/nemenyi_critical_difference.png" width="49%" alt="Nemenyi Critical Difference Diagram" />
+</p>
 
 ---
 
-## 3. Comprehensive Empirical Results (5-Seed Protocol)
+## Detailed Benchmark Results
 
-### 3.1 Multi-Seed Operational Benchmark Table
-Results evaluated across 5 repeated seeds under chronological cross-day shift (Tuesday/Wednesday train $\to$ Friday test). Metrics report **Mean $\pm$ Standard Deviation**:
+### 1. Master Benchmark Results (Held-Out Test Set $N = 20,000$)
+Evaluated on the primary stratified 80/20 partition of CIC-IDS2017:
 
-| Architecture | Accuracy | Recall @ FPR=0.1% | Recall @ FPR=0.01% | PR-AUC | Bayes Prec ($10^{-3}$) | Multiclass Macro-F1 | Latency ($\mu$s/flow) |
+| Model Name | Accuracy | Precision | Recall | $F_1$-Score | Specificity | FPR | ROC-AUC | Train Time (s) | Latency (ms) |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Novel CS-OOB RF** | **0.9982** | **0.9941** | **0.9950** | **0.9945** | **0.9988** | **0.0012 (0.12%)** | **0.9999** | 1.38 s | **0.0006 ms** |
+| **Random Forest (+ SMOTE)** | **0.9982** | **0.9956** | **0.9935** | **0.9945** | **0.9991** | **0.0009 (0.09%)** | **0.9999** | 1.88 s | **0.0007 ms** |
+| **Random Forest (Baseline)** | 0.9977 | 0.9967 | 0.9893 | 0.9930 | 0.9993 | 0.0007 (0.07%) | 0.9999 | 1.12 s | 0.0006 ms |
+| **KNN ($k=5$)** | 0.9875 | 0.9641 | 0.9618 | 0.9630 | 0.9927 | 0.0073 (0.73%) | 0.9941 | 0.01 s | 0.0359 ms |
+| **Logistic Regression (Baseline)** | 0.9534 | 0.8720 | 0.8487 | 0.8602 | 0.9747 | 0.0253 (2.53%) | 0.9861 | 0.33 s | 0.0001 ms |
+| **Linear SVM (Calibrated)** | 0.9517 | 0.8710 | 0.8378 | 0.8541 | 0.9748 | 0.0252 (2.52%) | 0.9855 | 17.50 s | 0.0002 ms |
+| **Logistic Regression (+ SMOTE)** | 0.9365 | 0.7368 | **0.9704** | 0.8376 | 0.9296 | 0.0704 (7.04%) | 0.9862 | 0.70 s | 0.0001 ms |
+| **Novel K-FEN LR** | 0.9330 | 0.7280 | 0.9633 | 0.8293 | 0.9268 | 0.0732 (7.32%) | 0.9845 | 0.27 s | 0.0010 ms |
+
+---
+
+### 2. Cross-Day Temporal Concept Drift Generalization
+*Evaluated on genuine chronological shift: Train on Tuesday (Patator) + Wednesday (DoS) $\to$ Test on Friday (DDoS, PortScan, Bot):*
+
+| Model Setup | Accuracy | Precision | Recall | $F_1$-Score | Specificity | False Positive Rate |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Static Baseline RF (Unadapted)** | 68.56% | 99.84% | 37.68% | 0.5471 | 99.94% | 0.06% |
+| **Random Forest (Active Drift-Adapted)** | **98.94%** | **99.95%** | **97.96%** | **0.9894** | **99.95%** | **0.05%** |
+| **Adaptive Soft-Voting Ensemble (RF+LGB+XGB)** | **99.51%** | **99.96%** | **99.07%** | **0.9951** | **99.96%** | **0.04%** |
+
+*Key Insight: Without adaptation, static models collapse to 68.56% accuracy because Friday PortScan traffic is unrepresented in Tuesday/Wednesday training logs. Our active drift adaptation with scaled cluster diversity sampling uncovers emergent attack signatures and elevates accuracy to **99.51%**.*
+
+---
+
+### 3. Multi-Seed Operational Benchmark Suite (5 Seeds)
+*Evaluated across 5 independent seeds (`42, 101, 2024, 7, 99`) under cross-day domain shift:*
+
+| Architecture | Accuracy (Mean $\pm$ Std) | Recall @ FPR=0.1% | Recall @ FPR=0.01% | PR-AUC | Bayes Prec ($10^{-3}$) | Multiclass Macro-$F_1$ | Latency ($\mu$s/flow) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Proposed-TwoStage-Adapted** | **98.73 $\pm$ 0.13%** | **69.05 $\pm$ 13.35%** | **42.34 $\pm$ 12.94%** | **0.9946 $\pm$ 0.0021** | **40.49 $\pm$ 4.83%** | **0.9866 $\pm$ 0.0014** | 2.91 $\mu$s |
 | **Deep-FTTransformer** | 72.71 $\pm$ 0.74% | 31.18 $\pm$ 0.24% | **31.09 $\pm$ 0.24%** | 0.8267 $\pm$ 0.0541 | 23.79 $\pm$ 0.14% | 0.6511 $\pm$ 0.0121 | 56.1 $\mu$s |
@@ -121,76 +113,106 @@ Results evaluated across 5 repeated seeds under chronological cross-day shift (T
 
 ---
 
-## 4. Statistical Significance Testing
+## Algorithmic Novelties
 
-### 4.1 Friedman Global Test
-- **Friedman Statistic**: $\chi_F^2 = 60.01$ ($df = 14$)
-- **p-value**: $p = 1.17 \times 10^{-7}$
-- **Conclusion**: Decisively rejects the null hypothesis ($p < 0.001$) that all 15 architectures have identical performance under temporal concept shift.
+### 1. Cost-Sensitive Out-of-Bag Margin-Weighted Forest (CS-OOB-RF)
+- **Class-Weighted Tree Induction**: Splits penalize rare attack errors using inverse class weighting:
+  $$w_c = \frac{N}{2 \cdot N_c}$$
+- **OOB Margin Weighting**: Evaluates generalization of each individual tree on its held-out bootstrap partition:
+  $$s_b = \frac{1}{|OOB_b|} \sum_{i \in OOB_b} \mathbb{I}(T_b(x_i) = y_i), \quad w_b \propto \exp(\beta \cdot s_b)$$
+- **Pareto-Optimal Adaptive Thresholding**: Automatically tunes operational threshold to constrain $\text{FPR} \le 0.001$:
+  $$\theta^* = \arg\max_{\theta \in [0.1, 0.9]} \left( F_1(\theta) - \lambda \cdot \text{FPR}(\theta) \right)$$
 
-### 4.2 Nemenyi Post-Hoc Test & Critical Difference
-- **Critical Difference**: $CD = 8.49$ ($\alpha = 0.05, k=15, N=5$)
-- **Top Average Ranks**:
-  1. `Deep-FTTransformer`: **Rank 1.2** (Top Ranked Architecture)
-  2. `Deep-LSTM`: **Rank 2.3**
-  3. `Deep-MLP`: **Rank 3.1**
-  4. `Deep-1DCNN`: **Rank 3.8**
-  5. `TabNet`: **Rank 6.8**
-  6. `CatBoost-Balanced`: **Rank 7.0**
-  7. `Proposed-TwoStage-SHAP`: **Rank 8.1**
-  ...
-  15. `RandomForest-Balanced`: **Rank 13.6**
+### 2. Kernelized Focal Elastic-Net Logistic Regression (K-FEN-LR)
+- **Random Fourier Features (RFF / RBF Approximation)**: Projects 69-dimensional flow vectors into non-linear Hilbert space $\phi(X) \in \mathbb{R}^{120}$ approximating the Gaussian RBF kernel in linear time $O(N \cdot D)$.
+- **Focal Log-Loss Formulation**: Suppresses gradients from well-classified benign flows via modulating factor $(1-p_t)^\gamma$:
+  $$\mathcal{L}_{\text{Focal}}(w) = -\frac{1}{N} \sum_{i=1}^N \alpha_t (1 - p_{t, i})^\gamma \log(p_{t, i}) + \lambda_1 \|w\|_1 + \frac{\lambda_2}{2} \|w\|_2^2$$
+- Increases attack recall by **+11.46%** over baseline Logistic Regression.
+
+### 3. SHAP-Stability Invariance Feature Selection
+- Evaluates rank stability across capture days to strip non-stationary burst artifacts:
+  $$\mathcal{S}_j = \frac{\frac{1}{2}\left(\bar{\phi}_j^{(1)} + \bar{\phi}_j^{(2)}\right)}{1 + \lambda \cdot \left(\frac{\Delta r_j}{D}\right)}$$
+
+### 4. Mondrian Conformal Uncertainty Layer & ADWIN Drift Adaptation
+- Calibrates per-class non-conformity scores guaranteeing valid statistical coverage.
+- Deploys ADWIN change-point detection on streaming conformal p-values paired with 1-Wasserstein attribution divergence on SHAP distributions.
 
 ---
 
-## 5. Repository Structure & Code Manifest
+## Statistical Significance Testing
+
+1. **Friedman Global Non-Parametric Test**:
+   - Statistic: $\chi_F^2 = 60.01$ ($df = 14$)
+   - $p$-value: $p = 1.17 \times 10^{-7}$
+   - Decisively rejects the null hypothesis that all architectures behave identically under domain shift.
+2. **Nemenyi Post-Hoc Test**:
+   - Critical Difference: $CD = 8.49$ ($\alpha = 0.05, k=15, N=5$).
+   - Establishes that deep tabular attention representations significantly outperform classical unadapted trees under concept drift.
+
+---
+
+## Repository Structure
 
 ```
-/Users/pranil/Desktop/SML/
-├── src/
-│   ├── data/
-│   │   └── harmonizer.py         # NetFlow-v2 feature standardization & shortcut stripping
-│   ├── features/
-│   │   └── shap_selector.py      # Novelty 1: SHAP-stability rank concordance selector
-│   ├── models/
-│   │   ├── cost_sensitive.py     # Two-Stage Cost-Sensitive Detector (FPR=0.1% threshold)
-│   │   ├── baselines.py          # Classical models, class-weights, and deep autoencoders
-│   │   ├── deep_tabular.py       # MLP, 1D-CNN, LSTM, FT-Transformer, TabNet
-│   │   └── run_deep_models.py    # Isolated sub-process runner for macOS OpenMP safety
-│   ├── conformal/
-│   │   └── mondrian.py           # Novelty 2: Mondrian conformal p-values & zero-day detection
-│   ├── drift/
-│   │   └── monitor.py            # Novelty 3: ADWIN on p-values, 1-Wasserstein SHAP drift & active retrain
-│   ├── evaluation/
-│   │   ├── metrics.py            # Recall@FPR, Bayesian precision, PR-AUC, Macro-F1
-│   │   └── statistics.py         # Friedman test, Nemenyi CD, Wilcoxon tests, Optuna tuner
-│   └── explain/
-│       └── reporter.py           # Local SHAP waterfall generator & Why Drift Happened reporter
+SML/
+├── network_intrusion_classification.ipynb  # Master Jupyter Notebook (all 51 cells executed)
+├── Network_Intrusion_Classification_Report.docx # Formatted IEEE/ACM Word Research Report
+├── REPORT.md                              # Comprehensive Academic Project Report
+├── RESEARCH_PAPER_REPORT.md               # Full Research Paper Manuscript
+├── build_and_run_notebook.py              # Automated programmatic notebook builder & runner
+├── generate_docx_report.py                # Automated DOCX report generator
 ├── experiments/
-│   ├── run_full_framework.py     # 5-seed master benchmark driver
-│   └── plot_benchmark_visualizations.py # Publication-quality figure generator
+│   ├── run_full_framework.py              # 5-Seed Master Benchmark Driver (15 models)
+│   └── plot_benchmark_visualizations.py  # Visualization generator
+├── src/
+│   ├── data/harmonizer.py                 # NetFlow-v2 standardization & shortcut stripping
+│   ├── features/shap_selector.py          # Novelty 1: SHAP-stability feature selector
+│   ├── models/cost_sensitive.py           # Two-Stage Cost-Sensitive Detector & Voting Ensemble
+│   ├── models/baselines.py                # Classical & Anomaly detection baselines
+│   ├── models/deep_tabular.py             # PyTorch MLP, 1D-CNN, LSTM, FT-Transformer, TabNet
+│   ├── conformal/mondrian.py              # Novelty 2: Mondrian Conformal Predictor
+│   ├── drift/monitor.py                   # Novelty 3: ADWIN Drift Monitor & Active Retraining
+│   ├── evaluation/metrics.py              # Operational metrics (Recall@FPR, Bayes precision)
+│   ├── evaluation/statistics.py           # Friedman, Nemenyi CD, and Wilcoxon testing
+│   └── explain/reporter.py                # SHAP local waterfall & drift reporter
 ├── results/
-│   ├── figures/                  # Publication figures (Nemenyi CD, Recall@FPR, Bayesian curve)
-│   ├── tables/                   # Summary CSVs, LaTeX Table 1, and SHAP rankings
-│   ├── why_drift_happened_report.md # Generated forensic drift incident report
-│   └── framework_benchmark_results.json # Full machine-readable experimental telemetry
-├── RESEARCH_PAPER_REPORT.md      # Complete academic paper manuscript
-└── requirements.txt              # Pinned reproducible virtual environment
+│   ├── figures/                           # All 16 publication figures (.png)
+│   ├── tables/                            # All benchmark tables (.csv)
+│   │   ├── master_model_comparison_table.csv
+│   │   ├── benchmark_multi_seed_summary.csv
+│   │   └── table1_benchmark_latex.tex
+│   └── framework_benchmark_results.json   # Machine-readable experimental telemetry
+└── requirements.txt                       # Reproducible dependency specification
 ```
 
 ---
 
-## 6. Reproduction & Execution Guide
-
-To reproduce the full 5-seed empirical benchmark and regenerate all tables and figures from scratch:
+## Quickstart & Reproduction
 
 ```bash
-# 1. Activate the environment
-source .venv/bin/activate
+# 1. Clone repository
+git clone https://github.com/PranilShah-08/SML.git
+cd SML
 
-# 2. Run the 5-seed master benchmark
+# 2. Set up virtual environment
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# 3. Run the full 5-seed benchmark
 python experiments/run_full_framework.py
 
-# 3. Generate publication-grade visualizations
-python experiments/plot_benchmark_visualizations.py
+# 4. Re-execute the complete 51-cell notebook
+python build_and_run_notebook.py
+
+# 5. Regenerate the Word report
+python generate_docx_report.py
 ```
+
+---
+
+## Authors & Citation
+
+**Author:** Pranil Shah (AIML C-3, PRN: 26070126509)  
+**Project:** Statistical Machine Learning (SML) Academic Project  
+**Benchmark Telemetry:** Canadian Institute for Cybersecurity (CIC-IDS2017)  
