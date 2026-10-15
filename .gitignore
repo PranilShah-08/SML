@@ -52,3 +52,7 @@ ENV/
 # Datasets (large PCAP/CSV/ZIP files exceed GitHub size limits; download from UNB)
 data/raw/*
 !data/raw/.gitkeep
+
+# CatBoost telemetry
+catboost_info/
+

@@ -1,0 +1,586 @@
+{
+  "metadata": {
+    "title": "Beyond Random Splits: A Drift-Aware, Explainable and Cost-Sensitive Framework",
+    "seeds": [
+      42,
+      101,
+      2024,
+      7,
+      99
+    ],
+    "dataset": "CIC-IDS2017 (NetFlow-v2 Harmonised, Shortcut-Stripped)",
+    "execution_time_seconds": 279.15728521347046
+  },
+  "summary_table": [
+    {
+      "Model": "Proposed-TwoStage-SHAP",
+      "recall_0.1%_mean": 0.13996023856858847,
+      "recall_0.1%_std": 0.13092601431616668,
+      "recall_0.01%_mean": 0.08277004638833665,
+      "recall_0.01%_std": 0.08547587784501975,
+      "pr_auc_mean": 0.6983090817146198,
+      "pr_auc_std": 0.05203285899755308,
+      "macro_f1_mean": 0.1347856067204308,
+      "macro_f1_std": 0.0029777382586823604,
+      "bayes_p_1e-2_mean": 0.43349260565966663,
+      "bayes_p_1e-2_std": 0.2910976157608445,
+      "bayes_p_1e-3_mean": 0.11154169454354235,
+      "bayes_p_1e-3_std": 0.09876222064935485,
+      "bayes_p_1e-4_mean": 0.07111836408189935,
+      "bayes_p_1e-4_std": 0.06764559974394288,
+      "roc_auc_mean": 0.782239102200718,
+      "roc_auc_std": 0.026304569747948713,
+      "accuracy_mean": 0.6745686421605401,
+      "accuracy_std": 0.049496614068868044,
+      "latency_us_mean": 2.0062328071388666,
+      "latency_us_std": 0.03159955245300762
+    },
+    {
+      "Model": "LightGBM-Balanced",
+      "recall_0.1%_mean": 0.021736249171636843,
+      "recall_0.1%_std": 0.025913317959086638,
+      "recall_0.01%_mean": 0.01809145129224652,
+      "recall_0.01%_std": 0.022199242338956475,
+      "pr_auc_mean": 0.7464952373758875,
+      "pr_auc_std": 0.039284376734320066,
+      "macro_f1_mean": 0.4060118994883403,
+      "macro_f1_std": 0.026693670020652704,
+      "bayes_p_1e-2_mean": 0.14504052640038323,
+      "bayes_p_1e-2_std": 0.16371294690505525,
+      "bayes_p_1e-3_mean": 0.020673364794192912,
+      "bayes_p_1e-3_std": 0.02447569092439566,
+      "bayes_p_1e-4_mean": 0.017310910330650926,
+      "bayes_p_1e-4_std": 0.021132335815693296,
+      "roc_auc_mean": 0.8526900910467583,
+      "roc_auc_std": 0.01588403548118531,
+      "accuracy_mean": 0.6301075268817204,
+      "accuracy_std": 0.009659536608558441,
+      "latency_us_mean": 1.0519119504854086,
+      "latency_us_std": 0.025352934986220425
+    },
+    {
+      "Model": "CatBoost-Balanced",
+      "recall_0.1%_mean": 0.1700463883366468,
+      "recall_0.1%_std": 0.08663760536356206,
+      "recall_0.01%_mean": 0.07574552683896621,
+      "recall_0.01%_std": 0.02689380712937918,
+      "pr_auc_mean": 0.8303584780317479,
+      "pr_auc_std": 0.03924184438638622,
+      "macro_f1_mean": 0.5386325876447886,
+      "macro_f1_std": 0.07073076608272733,
+      "bayes_p_1e-2_mean": 0.5919377498281746,
+      "bayes_p_1e-2_std": 0.12607498974121806,
+      "bayes_p_1e-3_mean": 0.1408162449887258,
+      "bayes_p_1e-3_std": 0.0626588856325991,
+      "bayes_p_1e-4_mean": 0.06984968850853979,
+      "bayes_p_1e-4_std": 0.022759905337759765,
+      "roc_auc_mean": 0.8952947442520248,
+      "roc_auc_std": 0.0355950517859987,
+      "accuracy_mean": 0.6842960740185047,
+      "accuracy_std": 0.03265983030561034,
+      "latency_us_mean": 0.0967001745644533,
+      "latency_us_std": 0.005545762028138285
+    },
+    {
+      "Model": "XGBoost-Balanced",
+      "recall_0.1%_mean": 0.0656726308813784,
+      "recall_0.1%_std": 0.1202715568764417,
+      "recall_0.01%_mean": 0.009012591119946983,
+      "recall_0.01%_std": 0.017694457463996515,
+      "pr_auc_mean": 0.770302498383668,
+      "pr_auc_std": 0.010462496853364787,
+      "macro_f1_mean": 0.4408617401678049,
+      "macro_f1_std": 0.10309669792493138,
+      "bayes_p_1e-2_mean": 0.1904283852062271,
+      "bayes_p_1e-2_std": 0.2882992614551125,
+      "bayes_p_1e-3_mean": 0.051317193361470705,
+      "bayes_p_1e-3_std": 0.09177629143412422,
+      "bayes_p_1e-4_mean": 0.008635859705987927,
+      "bayes_p_1e-4_std": 0.01694109856735202,
+      "roc_auc_mean": 0.8543792865298171,
+      "roc_auc_std": 0.011747180333321143,
+      "accuracy_mean": 0.6465866466616654,
+      "accuracy_std": 0.04536065107263754,
+      "latency_us_mean": 0.3242081257221914,
+      "latency_us_std": 0.003715158379890115
+    },
+    {
+      "Model": "RandomForest-Balanced",
+      "recall_0.1%_mean": 0.0,
+      "recall_0.1%_std": 0.0,
+      "recall_0.01%_mean": 0.0,
+      "recall_0.01%_std": 0.0,
+      "pr_auc_mean": 0.8039128800300166,
+      "pr_auc_std": 0.014302084885155423,
+      "macro_f1_mean": 0.38340321506010944,
+      "macro_f1_std": 0.00010153166634259236,
+      "bayes_p_1e-2_mean": 0.0,
+      "bayes_p_1e-2_std": 0.0,
+      "bayes_p_1e-3_mean": 0.0,
+      "bayes_p_1e-3_std": 0.0,
+      "bayes_p_1e-4_mean": 0.0,
+      "bayes_p_1e-4_std": 0.0,
+      "roc_auc_mean": 0.9062435693735844,
+      "roc_auc_std": 0.010435672982139339,
+      "accuracy_mean": 0.6218054513628407,
+      "accuracy_std": 0.0002669937047269791,
+      "latency_us_mean": 1.506582919646089,
+      "latency_us_std": 0.04533385793900236
+    },
+    {
+      "Model": "LogisticRegression-Balanced",
+      "recall_0.1%_mean": 0.09708416169648773,
+      "recall_0.1%_std": 0.006797021288248156,
+      "recall_0.01%_mean": 0.09708416169648773,
+      "recall_0.01%_std": 0.006797021288248156,
+      "pr_auc_mean": 0.7869947502065514,
+      "pr_auc_std": 0.011685073633386256,
+      "macro_f1_mean": 0.4782668750594062,
+      "macro_f1_std": 0.006336733888868861,
+      "bayes_p_1e-2_mean": 0.49450339914601615,
+      "bayes_p_1e-2_std": 0.017638911432028413,
+      "bayes_p_1e-3_mean": 0.08853854857172411,
+      "bayes_p_1e-3_std": 0.005658517239892276,
+      "bayes_p_1e-4_mean": 0.08846593479311013,
+      "bayes_p_1e-4_std": 0.005654319956882534,
+      "roc_auc_mean": 0.886350418240224,
+      "roc_auc_std": 0.009070179431569536,
+      "accuracy_mean": 0.6546136534133533,
+      "accuracy_std": 0.0027604455353299685,
+      "latency_us_mean": 0.024232134527137173,
+      "latency_us_std": 0.0015121813836020286
+    },
+    {
+      "Model": "Deep-MLP",
+      "recall_0.1%_mean": 0.3053015241882041,
+      "recall_0.1%_std": 0.00703701203576317,
+      "recall_0.01%_mean": 0.2933730947647449,
+      "recall_0.01%_std": 0.012832262364436983,
+      "pr_auc_mean": 0.8243289723244459,
+      "pr_auc_std": 0.048053638664376216,
+      "macro_f1_mean": 0.6463189766086108,
+      "macro_f1_std": 0.004807122885436118,
+      "bayes_p_1e-2_mean": 0.7550577383279891,
+      "bayes_p_1e-2_std": 0.004338902234185542,
+      "bayes_p_1e-3_mean": 0.23405039599624153,
+      "bayes_p_1e-3_std": 0.0041546393918627635,
+      "bayes_p_1e-4_mean": 0.2267694978798837,
+      "bayes_p_1e-4_std": 0.007653158218933014,
+      "roc_auc_mean": 0.9039828964632551,
+      "roc_auc_std": 0.0338435539708032,
+      "accuracy_mean": 0.7371592898224556,
+      "accuracy_std": 0.0025786768645154863,
+      "latency_us_mean": 0.14622820718025276,
+      "latency_us_std": 0.005139457349156324
+    },
+    {
+      "Model": "Deep-1DCNN",
+      "recall_0.1%_mean": 0.3060967528164347,
+      "recall_0.1%_std": 0.002211838206531303,
+      "recall_0.01%_mean": 0.2767395626242545,
+      "recall_0.01%_std": 0.041181510825567744,
+      "pr_auc_mean": 0.8377780781055517,
+      "pr_auc_std": 0.02574633144697634,
+      "macro_f1_mean": 0.6469084056140617,
+      "macro_f1_std": 0.001595294856527425,
+      "bayes_p_1e-2_mean": 0.7556066412480009,
+      "bayes_p_1e-2_std": 0.0013364840570894915,
+      "bayes_p_1e-3_mean": 0.23453731029177521,
+      "bayes_p_1e-3_std": 0.0012978999312256295,
+      "bayes_p_1e-4_mean": 0.21591562169177933,
+      "bayes_p_1e-4_std": 0.026545234183312248,
+      "roc_auc_mean": 0.9019437258643587,
+      "roc_auc_std": 0.01779712903579946,
+      "accuracy_mean": 0.7374843710927731,
+      "accuracy_std": 0.0009174261729354112,
+      "latency_us_mean": 74.09313368180428,
+      "latency_us_std": 0.3292940526737487
+    },
+    {
+      "Model": "Deep-LSTM",
+      "recall_0.1%_mean": 0.3110669317428761,
+      "recall_0.1%_std": 0.004081872390837504,
+      "recall_0.01%_mean": 0.2998011928429424,
+      "recall_0.01%_std": 0.016387895829732737,
+      "pr_auc_mean": 0.7572258889066873,
+      "pr_auc_std": 0.049163631841838036,
+      "macro_f1_mean": 0.6503611830464269,
+      "macro_f1_std": 0.0027952020902182587,
+      "bayes_p_1e-2_mean": 0.7585520950434101,
+      "bayes_p_1e-2_std": 0.00240131228400057,
+      "bayes_p_1e-3_mean": 0.2374361405807913,
+      "bayes_p_1e-3_std": 0.0023752813999509017,
+      "bayes_p_1e-4_mean": 0.230545013021821,
+      "bayes_p_1e-4_std": 0.009859084315921023,
+      "roc_auc_mean": 0.8422659424976245,
+      "roc_auc_std": 0.04636466710023976,
+      "accuracy_mean": 0.7394098524631157,
+      "accuracy_std": 0.0015402714273002886,
+      "latency_us_mean": 2.7854505355327124,
+      "latency_us_std": 0.029192794206914976
+    },
+    {
+      "Model": "Deep-FTTransformer",
+      "recall_0.1%_mean": 0.3117958913187541,
+      "recall_0.1%_std": 0.0023616341525785935,
+      "recall_0.01%_mean": 0.310934393638171,
+      "recall_0.01%_std": 0.0024492668803944833,
+      "pr_auc_mean": 0.8266704745051003,
+      "pr_auc_std": 0.05413952180760442,
+      "macro_f1_mean": 0.6508648735220094,
+      "macro_f1_std": 0.001617416083299393,
+      "bayes_p_1e-2_mean": 0.7589964152461034,
+      "bayes_p_1e-2_std": 0.0013898935840769748,
+      "bayes_p_1e-3_mean": 0.2378651377914225,
+      "bayes_p_1e-3_std": 0.001374478246197167,
+      "bayes_p_1e-4_mean": 0.23720074773230643,
+      "bayes_p_1e-4_std": 0.001427086828003385,
+      "roc_auc_mean": 0.8928372535869122,
+      "roc_auc_std": 0.043605696707730644,
+      "accuracy_mean": 0.7396849212303075,
+      "accuracy_std": 0.0008911492713781283,
+      "latency_us_mean": 61.302157839998664,
+      "latency_us_std": 0.27121958884387415
+    },
+    {
+      "Model": "TabNet",
+      "recall_0.1%_mean": 0.20450629555997346,
+      "recall_0.1%_std": 0.1254510793449411,
+      "recall_0.01%_mean": 0.1888005301524188,
+      "recall_0.01%_std": 0.13634547913518894,
+      "pr_auc_mean": 0.7945372395421384,
+      "pr_auc_std": 0.03904102292869778,
+      "macro_f1_mean": 0.5622852215804613,
+      "macro_f1_std": 0.10639351407926292,
+      "bayes_p_1e-2_mean": 0.5595181185380617,
+      "bayes_p_1e-2_std": 0.29201300361049604,
+      "bayes_p_1e-3_mean": 0.16010055922610208,
+      "bayes_p_1e-3_std": 0.09441859904512973,
+      "bayes_p_1e-4_mean": 0.14700323772124135,
+      "bayes_p_1e-4_std": 0.1031476281059407,
+      "roc_auc_mean": 0.8878545327765668,
+      "roc_auc_std": 0.03110839037692827,
+      "accuracy_mean": 0.6983495873968492,
+      "accuracy_std": 0.04785948309272487,
+      "latency_us_mean": 8.09951963292765,
+      "latency_us_std": 0.056436838233467304
+    },
+    {
+      "Model": "IsolationForest",
+      "recall_0.1%_mean": 0.0,
+      "recall_0.1%_std": 0.0,
+      "recall_0.01%_mean": 0.0,
+      "recall_0.01%_std": 0.0,
+      "pr_auc_mean": 0.4764987344953481,
+      "pr_auc_std": 0.010197878453979604,
+      "macro_f1_mean": 0.3834887843983658,
+      "macro_f1_std": 0.0,
+      "bayes_p_1e-2_mean": 0.0,
+      "bayes_p_1e-2_std": 0.0,
+      "bayes_p_1e-3_mean": 0.0,
+      "bayes_p_1e-3_std": 0.0,
+      "bayes_p_1e-4_mean": 0.0,
+      "bayes_p_1e-4_std": 0.0,
+      "roc_auc_mean": 0.6563672449905653,
+      "roc_auc_std": 0.029531762635480647,
+      "accuracy_mean": 0.6220305076269067,
+      "accuracy_std": 0.0,
+      "latency_us_mean": 0.0,
+      "latency_us_std": 0.0
+    },
+    {
+      "Model": "DeepAutoencoder",
+      "recall_0.1%_mean": 0.0,
+      "recall_0.1%_std": 0.0,
+      "recall_0.01%_mean": 0.0,
+      "recall_0.01%_std": 0.0,
+      "pr_auc_mean": 0.5862783058506971,
+      "pr_auc_std": 0.012269152316376588,
+      "macro_f1_mean": 0.3834792791375641,
+      "macro_f1_std": 1.9010521603490817e-05,
+      "bayes_p_1e-2_mean": 0.0,
+      "bayes_p_1e-2_std": 0.0,
+      "bayes_p_1e-3_mean": 0.0,
+      "bayes_p_1e-3_std": 0.0,
+      "bayes_p_1e-4_mean": 0.0,
+      "bayes_p_1e-4_std": 0.0,
+      "roc_auc_mean": 0.7847395612935506,
+      "roc_auc_std": 0.00902804034786423,
+      "accuracy_mean": 0.6220055013753438,
+      "accuracy_std": 5.001250312575146e-05,
+      "latency_us_mean": 93.24981350215094,
+      "latency_us_std": 0.2280182021417854
+    },
+    {
+      "Model": "LightGBM-SMOTE",
+      "recall_0.1%_mean": 0.025115970841616965,
+      "recall_0.1%_std": 0.030397492235498168,
+      "recall_0.01%_mean": 0.022465208747514908,
+      "recall_0.01%_std": 0.028134627441074502,
+      "pr_auc_mean": 0.7443290433517115,
+      "pr_auc_std": 0.08445737423152883,
+      "macro_f1_mean": 0.40903263425715863,
+      "macro_f1_std": 0.031349920636863114,
+      "bayes_p_1e-2_mean": 0.15722430212289118,
+      "bayes_p_1e-2_std": 0.184790448095376,
+      "bayes_p_1e-3_mean": 0.023677309484371616,
+      "bayes_p_1e-3_std": 0.02854546856707007,
+      "bayes_p_1e-4_mean": 0.02124431629408442,
+      "bayes_p_1e-4_std": 0.02650880194907141,
+      "roc_auc_mean": 0.8364713459537289,
+      "roc_auc_std": 0.0990823309548409,
+      "accuracy_mean": 0.630657664416104,
+      "accuracy_std": 0.01191227065790676,
+      "latency_us_mean": 0.0,
+      "latency_us_std": 0.0
+    },
+    {
+      "Model": "LightGBM-NoWeights",
+      "recall_0.1%_mean": 0.09449966865473824,
+      "recall_0.1%_std": 0.09040891325626857,
+      "recall_0.01%_mean": 0.011928429423459246,
+      "recall_0.01%_std": 0.016078953458905365,
+      "pr_auc_mean": 0.7674853337515397,
+      "pr_auc_std": 0.02726597075803481,
+      "macro_f1_mean": 0.4724644354576467,
+      "macro_f1_std": 0.08143975052905286,
+      "bayes_p_1e-2_mean": 0.36581818102062547,
+      "bayes_p_1e-2_std": 0.27866991798714097,
+      "bayes_p_1e-3_mean": 0.08039234509458233,
+      "bayes_p_1e-3_std": 0.07306849101841692,
+      "bayes_p_1e-4_mean": 0.011544870362711259,
+      "bayes_p_1e-4_std": 0.01536204679529365,
+      "roc_auc_mean": 0.8386514314381449,
+      "roc_auc_std": 0.019109334649349635,
+      "accuracy_mean": 0.6576144036009003,
+      "accuracy_std": 0.03414425782334065,
+      "latency_us_mean": 0.0,
+      "latency_us_std": 0.0
+    }
+  ],
+  "statistical_tests": {
+    "friedman_test": {
+      "friedman_stat": 60.00511508951409,
+      "friedman_p_value": 1.1707735078776982e-07,
+      "mean_ranks": {
+        "Proposed-TwoStage-SHAP": 8.1,
+        "LightGBM-Balanced": 9.9,
+        "CatBoost-Balanced": 7.0,
+        "XGBoost-Balanced": 9.9,
+        "RandomForest-Balanced": 13.6,
+        "LogisticRegression-Balanced": 7.6,
+        "Deep-MLP": 3.1,
+        "Deep-1DCNN": 3.8,
+        "Deep-LSTM": 2.3,
+        "Deep-FTTransformer": 1.2,
+        "TabNet": 6.8,
+        "IsolationForest": 13.6,
+        "DeepAutoencoder": 13.6,
+        "LightGBM-SMOTE": 11.2,
+        "LightGBM-NoWeights": 8.3
+      },
+      "nemenyi_cd": 8.485281374238571,
+      "k_models": 15,
+      "n_evaluations": 5
+    },
+    "pairwise_wilcoxon_vs_proposed": {
+      "LightGBM-Balanced": {
+        "stat": 1.0,
+        "p_value": 0.25
+      },
+      "CatBoost-Balanced": {
+        "stat": 7.0,
+        "p_value": 1.0
+      },
+      "XGBoost-Balanced": {
+        "stat": 2.0,
+        "p_value": 0.375
+      },
+      "RandomForest-Balanced": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "LogisticRegression-Balanced": {
+        "stat": 6.0,
+        "p_value": 0.8125
+      },
+      "Deep-MLP": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "Deep-1DCNN": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "Deep-LSTM": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "Deep-FTTransformer": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "TabNet": {
+        "stat": 1.0,
+        "p_value": 0.125
+      },
+      "IsolationForest": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "DeepAutoencoder": {
+        "stat": 0.0,
+        "p_value": 0.0625
+      },
+      "LightGBM-SMOTE": {
+        "stat": 2.0,
+        "p_value": 0.1875
+      },
+      "LightGBM-NoWeights": {
+        "stat": 1.0,
+        "p_value": 0.25
+      }
+    }
+  },
+  "novelty1_shap_stability": [
+    {
+      "seed": 42,
+      "spearman_rank_corr": 0.5262208840423751,
+      "top_stable_features": [
+        "Bwd Packet Length Min",
+        "Fwd Packet Length Max",
+        "Bwd Packet Length Std",
+        "Min Packet Length",
+        "Fwd Header Length"
+      ]
+    },
+    {
+      "seed": 101,
+      "spearman_rank_corr": 0.5178344124140875,
+      "top_stable_features": [
+        "Bwd Packet Length Min",
+        "Bwd Packet Length Std",
+        "Fwd Header Length",
+        "Packet Length Mean",
+        "Fwd Packet Length Max"
+      ]
+    },
+    {
+      "seed": 2024,
+      "spearman_rank_corr": 0.45302089460379064,
+      "top_stable_features": [
+        "Bwd Packet Length Min",
+        "Fwd Packet Length Max",
+        "Bwd Packet Length Std",
+        "Bwd Packets/s",
+        "Avg Bwd Segment Size"
+      ]
+    },
+    {
+      "seed": 7,
+      "spearman_rank_corr": 0.5420814396257694,
+      "top_stable_features": [
+        "Bwd Packet Length Std",
+        "Packet Length Mean",
+        "Bwd Packet Length Min",
+        "Min Packet Length",
+        "Fwd Packet Length Max"
+      ]
+    },
+    {
+      "seed": 99,
+      "spearman_rank_corr": 0.4536504208042257,
+      "top_stable_features": [
+        "Bwd Packet Length Min",
+        "Bwd Packet Length Std",
+        "Avg Bwd Segment Size",
+        "Bwd Packets/s",
+        "Fwd Header Length"
+      ]
+    }
+  ],
+  "novelty2_conformal_uncertainty": [
+    {
+      "seed": 42,
+      "auto_decide_pct": 0.0,
+      "analyst_escalation_pct": 100.0,
+      "unknown_attack_flagged_pct": 0.0,
+      "unseen_attack_detection_rate": 0.0
+    },
+    {
+      "seed": 101,
+      "auto_decide_pct": 0.0,
+      "analyst_escalation_pct": 100.0,
+      "unknown_attack_flagged_pct": 0.0,
+      "unseen_attack_detection_rate": 0.0
+    },
+    {
+      "seed": 2024,
+      "auto_decide_pct": 0.0,
+      "analyst_escalation_pct": 100.0,
+      "unknown_attack_flagged_pct": 0.0,
+      "unseen_attack_detection_rate": 0.0
+    },
+    {
+      "seed": 7,
+      "auto_decide_pct": 0.0,
+      "analyst_escalation_pct": 100.0,
+      "unknown_attack_flagged_pct": 0.0,
+      "unseen_attack_detection_rate": 0.0
+    },
+    {
+      "seed": 99,
+      "auto_decide_pct": 0.0,
+      "analyst_escalation_pct": 100.0,
+      "unknown_attack_flagged_pct": 0.0,
+      "unseen_attack_detection_rate": 0.0
+    }
+  ],
+  "novelty3_drift_active_retrain": [
+    {
+      "seed": 42,
+      "drift_events_count": 0,
+      "pre_retrain_recall_0.1%": 0.0003313452617627568,
+      "post_retrain_recall_0.1%": 0.001325820351342393,
+      "recovery_delta_pct": 0.09944750895796362,
+      "top_drifted_feature": "Bwd Packet Length Std",
+      "top_wasserstein": 0.43377321431691956
+    },
+    {
+      "seed": 101,
+      "drift_events_count": 0,
+      "pre_retrain_recall_0.1%": 0.0728959575878065,
+      "post_retrain_recall_0.1%": 0.08059701492537313,
+      "recovery_delta_pct": 0.7701057337566639,
+      "top_drifted_feature": "Bwd Packet Length Std",
+      "top_wasserstein": 0.520579838086124
+    },
+    {
+      "seed": 2024,
+      "drift_events_count": 0,
+      "pre_retrain_recall_0.1%": 0.031146454605699137,
+      "post_retrain_recall_0.1%": 0.002982107355864811,
+      "recovery_delta_pct": -2.8164347249834325,
+      "top_drifted_feature": "Bwd Packet Length Std",
+      "top_wasserstein": 0.6400580026675512
+    },
+    {
+      "seed": 7,
+      "drift_events_count": 0,
+      "pre_retrain_recall_0.1%": 0.2905897945659377,
+      "post_retrain_recall_0.1%": 0.2932405566600398,
+      "recovery_delta_pct": 0.2650762094102088,
+      "top_drifted_feature": "Bwd Packet Length Std",
+      "top_wasserstein": 0.4086680533175907
+    },
+    {
+      "seed": 99,
+      "drift_events_count": 0,
+      "pre_retrain_recall_0.1%": 0.30483764082173626,
+      "post_retrain_recall_0.1%": 0.08449304174950298,
+      "recovery_delta_pct": -22.03445990722333,
+      "top_drifted_feature": "Bwd Packet Length Std",
+      "top_wasserstein": 0.5669829696132873
+    }
+  ]
+}

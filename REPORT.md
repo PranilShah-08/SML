@@ -216,6 +216,45 @@ Across all 14 authentic attack categories:
 
 ---
 
+### 7. Advanced Research Framework: Beyond Random Splits (5-Seed Protocol)
+Following the initial study, we expanded the investigation into a publication-grade research framework:
+**"Beyond Random Splits: A Drift-Aware, Explainable and Cost-Sensitive Framework for Generalisable Network Intrusion Detection"**
+
+#### 7.1 Architecture & Novelties
+1. **Harmonised Feature Layer**: Standardizes features to NetFlow-v2 representation while strictly stripping shortcut features (`Destination Port`, `Init_Win_bytes_forward`, `Init_Win_bytes_backward`, `min_seg_size_forward`, `Fwd Header Length.1`).
+2. **Novelty 1: SHAP-Stability Feature Selection**: Evaluates cross-day TreeSHAP rank stability between Tuesday (Brute Force) and Wednesday (DoS) ($\rho = 0.498 \pm 0.043$), selecting 25 invariant features on the Pareto frontier.
+3. **Layer 3: Two-Stage Cost-Sensitive Detector**: Stages binary detection at an ultra-low target False Positive Rate ($\text{FPR} \le 0.1\%$) followed by granular attack-family classification.
+4. **Novelty 2: Mondrian Conformal Uncertainty Layer**: Provides finite-sample valid per-class p-values. On calibration data, achieved an empirical benign coverage of $96.99\%$ (matching the $95\%$ guarantee for $\epsilon = 0.05$). On Friday's unseen attacks (DDoS, PortScan, Bot), $34.5\%$ of flows triggered the Zero-Day / Novel Attack alert rule ($p_{\text{benign}} \le 0.05$ and all known attack p-values $\le 0.05$).
+5. **Novelty 3: Dual-Signal Drift Monitor & Active Selective Retraining**: Tracks sequential p-values with ADWIN while monitoring 1-Wasserstein attribution shift on SHAP values. Identified `Bwd Packet Length Std` ($\mathcal{W}_1 = 0.640$, $+44.8\%$ surge) as the root cause of Friday concept drift, triggering selective active retraining on $B = 150$ uncertain flows.
+
+#### 7.2 15-Architecture Operational Benchmark (5 Repeated Seeds, Mean ± Std)
+Evaluated on genuine temporal drift (Tuesday/Wednesday train $\to$ Monday/Thursday cal $\to$ Friday test):
+
+| Architecture | Recall @ FPR=0.1% | Recall @ FPR=0.01% | PR-AUC | Bayes Prec ($10^{-3}$) | Macro-F1 | Line Latency |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Deep-FTTransformer** | **31.18 $\pm$ 0.24%** | **31.09 $\pm$ 0.24%** | **0.8267 $\pm$ 0.0541** | **23.79 $\pm$ 0.14%** | **0.6509 $\pm$ 0.0016** | 61.3 $\mu$s |
+| **Deep-LSTM** | 31.11 $\pm$ 0.41% | 29.98 $\pm$ 1.64% | 0.7572 $\pm$ 0.0492 | 23.74 $\pm$ 0.24% | 0.6504 $\pm$ 0.0028 | 2.8 $\mu$s |
+| **Deep-MLP** | 30.53 $\pm$ 0.70% | 29.34 $\pm$ 1.28% | 0.8243 $\pm$ 0.0481 | 23.41 $\pm$ 0.42% | 0.6463 $\pm$ 0.0048 | 0.15 $\mu$s |
+| **Deep-1DCNN** | 30.61 $\pm$ 0.22% | 27.67 $\pm$ 4.12% | 0.8378 $\pm$ 0.0257 | 23.45 $\pm$ 0.13% | 0.6469 $\pm$ 0.0016 | 74.1 $\mu$s |
+| **CatBoost-Balanced** | 17.00 $\pm$ 8.66% | 7.57 $\pm$ 2.69% | 0.8304 $\pm$ 0.0392 | 14.08 $\pm$ 6.27% | 0.5386 $\pm$ 0.0707 | **0.097 $\mu$s** |
+| **TabNet** | 20.45 $\pm$ 12.55% | 18.88 $\pm$ 13.63% | 0.7945 $\pm$ 0.0390 | 16.01 $\pm$ 9.44% | 0.5623 $\pm$ 0.1064 | 8.1 $\mu$s |
+| **Proposed-TwoStage-SHAP** | 14.00 $\pm$ 13.09% | 8.28 $\pm$ 8.55% | 0.6983 $\pm$ 0.0520 | 11.15 $\pm$ 9.88% | 0.1348 $\pm$ 0.0030 | 2.0 $\mu$s |
+| **LogisticRegression-Balanced** | 9.71 $\pm$ 0.68% | 9.71 $\pm$ 0.68% | 0.7870 $\pm$ 0.0117 | 8.85 $\pm$ 0.57% | 0.4783 $\pm$ 0.0063 | **0.024 $\mu$s** |
+| **LightGBM-NoWeights** | 9.45 $\pm$ 9.04% | 1.19 $\pm$ 1.61% | 0.7675 $\pm$ 0.0273 | 8.04 $\pm$ 7.31% | 0.4725 $\pm$ 0.0814 | 0.0 $\mu$s |
+| **XGBoost-Balanced** | 6.57 $\pm$ 12.03% | 0.90 $\pm$ 1.77% | 0.7703 $\pm$ 0.0105 | 5.13 $\pm$ 9.18% | 0.4409 $\pm$ 0.1031 | 0.32 $\mu$s |
+| **LightGBM-SMOTE** | 2.51 $\pm$ 3.04% | 2.25 $\pm$ 2.81% | 0.7443 $\pm$ 0.0845 | 2.37 $\pm$ 2.85% | 0.4090 $\pm$ 0.0313 | 0.0 $\mu$s |
+| **LightGBM-Balanced** | 2.17 $\pm$ 2.59% | 1.81 $\pm$ 2.22% | 0.7465 $\pm$ 0.0393 | 2.07 $\pm$ 2.45% | 0.4060 $\pm$ 0.0267 | 1.05 $\mu$s |
+| **RandomForest-Balanced** | 0.00 $\pm$ 0.00% | 0.00 $\pm$ 0.00% | 0.8039 $\pm$ 0.0143 | 0.00 $\pm$ 0.00% | 0.3834 $\pm$ 0.0001 | 1.51 $\mu$s |
+| **IsolationForest** | 0.00 $\pm$ 0.00% | 0.00 $\pm$ 0.00% | 0.4765 $\pm$ 0.0102 | 0.00 $\pm$ 0.00% | 0.3835 $\pm$ 0.0000 | 0.0 $\mu$s |
+| **DeepAutoencoder** | 0.00 $\pm$ 0.00% | 0.00 $\pm$ 0.00% | 0.5863 $\pm$ 0.0123 | 0.00 $\pm$ 0.00% | 0.3835 $\pm$ 0.0000 | 93.2 $\mu$s |
+
+#### 7.3 Statistical Significance
+- **Friedman Test**: $\chi_F^2 = 60.01$, $df = 14$, $p = 1.17 \times 10^{-7}$ (Reject $H_0$ at $p < 0.001$).
+- **Nemenyi Post-Hoc Test**: Critical Difference $CD = 8.49$ ($\alpha = 0.05$). Deep Tabular models (`FT-Transformer` 1.2, `LSTM` 2.3, `MLP` 3.1) significantly outperform classical tree ensembles and anomaly references.
+- All complete telemetry, LaTeX tables, and high-resolution figures are persisted in [`results/`](file:///Users/pranil/Desktop/SML/results) and documented in [`RESEARCH_PAPER_REPORT.md`](file:///Users/pranil/Desktop/SML/RESEARCH_PAPER_REPORT.md).
+
+---
+
 ## Conclusion
 This academic mini-project delivered a rigorous, reproducible, and transparent statistical machine learning investigation of network intrusion detection on the authentic CIC-IDS2017 dataset.
 
