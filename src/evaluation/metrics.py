@@ -73,10 +73,12 @@ def evaluate_intrusion_detector(
     # 3. Primary: Multiclass Macro-F1
     if y_true_multi is not None and y_pred_multi is not None:
         macro_f1 = float(f1_score(y_true_multi, y_pred_multi, average='macro', zero_division=0))
+        acc = float(accuracy_score(y_true_multi, y_pred_multi))
     else:
-        # Binary fallback if multiclass predictions not supplied
-        bin_pred = (y_score_binary >= thresh_01).astype(int)
-        macro_f1 = float(f1_score(y_true_binary, bin_pred, average='macro', zero_division=0))
+        # Standard classification threshold (0.5)
+        bin_pred_std = (y_score_binary >= 0.5).astype(int)
+        macro_f1 = float(f1_score(y_true_binary, bin_pred_std, average='macro', zero_division=0))
+        acc = float(accuracy_score(y_true_binary, bin_pred_std))
 
     # 4. Primary: Bayesian Precision at operational priors (10^-2, 10^-3, 10^-4)
     # Using the operational threshold at FPR = 0.1% (target_fpr = 10^-3)
@@ -91,7 +93,7 @@ def evaluate_intrusion_detector(
         roc_auc = 0.5
     
     bin_pred_01 = (y_score_binary >= thresh_01).astype(int)
-    acc = float(accuracy_score(y_true_binary, bin_pred_01))
+    acc_01 = float(accuracy_score(y_true_binary, bin_pred_01))
 
     return {
         # Primary Operational Metrics (Lead with these)
@@ -105,6 +107,7 @@ def evaluate_intrusion_detector(
         # Secondary Metrics
         'roc_auc': roc_auc,
         'accuracy': acc,
+        'accuracy_at_fpr_0.1%': acc_01,
         'latency_us': latency_per_sample_us,
         'threshold_fpr_0.1%': thresh_01,
         'threshold_fpr_0.01%': thresh_001

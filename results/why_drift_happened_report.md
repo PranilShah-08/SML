@@ -6,11 +6,11 @@
 ## 1. Top Attributed Drift Drivers (1-Wasserstein Divergence)
 The detector identified significant divergence in feature attribution profiles:
 
-- **Bwd Packet Length Std**: Wasserstein Distance = `0.4338` | Attribution Surged by `44.8%` (Baseline Mean SHAP: `0.5251` -> Drifted: `0.7602`)
-- **Fwd Packet Length Max**: Wasserstein Distance = `0.2373` | Attribution Surged by `13.2%` (Baseline Mean SHAP: `0.5789` -> Drifted: `0.6553`)
-- **Avg Bwd Segment Size**: Wasserstein Distance = `0.1940` | Attribution Attenuated by `12.8%` (Baseline Mean SHAP: `0.4758` -> Drifted: `0.4147`)
-- **Fwd Header Length**: Wasserstein Distance = `0.1142` | Attribution Surged by `17.2%` (Baseline Mean SHAP: `0.5031` -> Drifted: `0.5898`)
-- **Fwd Packet Length Std**: Wasserstein Distance = `0.0995` | Attribution Surged by `27.0%` (Baseline Mean SHAP: `0.1969` -> Drifted: `0.2500`)
+- **Bwd Packet Length Std**: Wasserstein Distance = `0.0274` | Attribution Surged by `70.0%` (Baseline Mean SHAP: `0.0276` -> Drifted: `0.0469`)
+- **Packet Length Std**: Wasserstein Distance = `0.0266` | Attribution Surged by `60.9%` (Baseline Mean SHAP: `0.0206` -> Drifted: `0.0331`)
+- **Average Packet Size**: Wasserstein Distance = `0.0106` | Attribution Attenuated by `0.1%` (Baseline Mean SHAP: `0.0162` -> Drifted: `0.0162`)
+- **Avg Bwd Segment Size**: Wasserstein Distance = `0.0103` | Attribution Surged by `32.5%` (Baseline Mean SHAP: `0.0200` -> Drifted: `0.0265`)
+- **Fwd Header Length**: Wasserstein Distance = `0.0096` | Attribution Attenuated by `10.1%` (Baseline Mean SHAP: `0.0260` -> Drifted: `0.0234`)
 
 ## 2. Operational Impact & Forensic Assessment
 1. **Behavioral Shift**: The sudden deviation in flow dynamics indicates a transition from volumetric attacks (e.g. DoS/Brute Force) to polymorphic or stealthy scanning/botnet communication.

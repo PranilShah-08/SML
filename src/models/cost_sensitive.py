@@ -15,14 +15,16 @@ class TwoStageDetector(BaseEstimator, ClassifierMixin):
     def __init__(
         self,
         target_fpr: float = 0.001,
+        stage1_model_type: str = 'ensemble',
         stage1_params: Optional[Dict[str, Any]] = None,
         stage2_params: Optional[Dict[str, Any]] = None,
         seed: int = 42
     ):
         self.target_fpr = target_fpr
+        self.stage1_model_type = stage1_model_type
         self.stage1_params = stage1_params or {
             'n_estimators': 150,
-            'max_depth': 6,
+            'max_depth': 8,
             'learning_rate': 0.05,
             'class_weight': 'balanced',
             'verbose': -1,
@@ -39,7 +41,20 @@ class TwoStageDetector(BaseEstimator, ClassifierMixin):
             'random_state': seed
         }
         self.seed = seed
-        self.stage1_clf = lgb.LGBMClassifier(**self.stage1_params)
+        
+        if self.stage1_model_type == 'ensemble':
+            from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+            from xgboost import XGBClassifier
+            rf = RandomForestClassifier(n_estimators=100, max_depth=16, random_state=seed, n_jobs=-1)
+            lgbm = lgb.LGBMClassifier(**self.stage1_params)
+            xgb = XGBClassifier(n_estimators=150, max_depth=6, learning_rate=0.05, random_state=seed, eval_metric='logloss', n_jobs=-1)
+            self.stage1_clf = VotingClassifier(
+                estimators=[('rf', rf), ('lgbm', lgbm), ('xgb', xgb)],
+                voting='soft'
+            )
+        else:
+            self.stage1_clf = lgb.LGBMClassifier(**self.stage1_params)
+
         self.stage2_clf = lgb.LGBMClassifier(**self.stage2_params)
         self.operational_threshold: float = 0.5
         self.classes_: List[str] = []
@@ -61,7 +76,7 @@ class TwoStageDetector(BaseEstimator, ClassifierMixin):
         self.classes_ = sorted(list(np.unique(y_train_multi)))
         self.attack_classes_ = [c for c in self.classes_ if c != 'BENIGN']
 
-        print(f"[Two-Stage] Fitting Stage 1 Binary Detector (LightGBM)...")
+        print(f"[Two-Stage] Fitting Stage 1 Binary Detector ({self.stage1_model_type})...")
         self.stage1_clf.fit(X_train, y_train_binary)
 
         # Calibrate operational threshold at target_fpr on benign validation flows

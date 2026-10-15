@@ -4,7 +4,7 @@
     "Official Source URL": "https://www.unb.ca/cic/datasets/ids-2017.html",
     "Official Archive Name": "MachineLearningCSV.zip",
     "Verified Archive MD5": "4f83860afbf29cac8163854095bf6cf7",
-    "Execution Timestamp": "2026-10-15T17:29:51.093807",
+    "Execution Timestamp": "2026-10-16T00:50:23.766313",
     "Random Seed": 42,
     "Operating System": "macOS-26.7.1-arm64-arm-64bit",
     "Python Version": "3.11.15 (main, Mar  3 2026, 00:52:57) [Clang 21.0.0 (clang-2100.0.123.102)]",
@@ -35,10 +35,15 @@
     "Key Results Summary": {
         "Novel CS-OOB RF Binary F1": 0.9945258174286137,
         "Novel CS-OOB RF Binary FPR": 0.001203224642040669,
+        "Novel CS-OOB RF Binary Accuracy": 0.99815,
         "Novel K-FEN LR Binary F1": 0.8292558613659531,
         "Random Forest Baseline F1": 0.9930173822611796,
+        "Random Forest Baseline Accuracy": 0.99765,
         "Logistic Regression Baseline F1": 0.8601860186018602,
         "Logistic Regression SMOTE F1": 0.8376133895489971,
-        "Cross-Day RF Generalization F1": 0.547130409735724
+        "Static Cross-Day RF F1": 0.547130409735724,
+        "Static Cross-Day RF Accuracy": 0.68555,
+        "Active Drift-Adapted Cross-Day RF Accuracy": 0.9893846153846154,
+        "Active Drift-Adapted Cross-Day RF F1": 0.9894339237404931
     }
 }

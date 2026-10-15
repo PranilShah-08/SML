@@ -65,7 +65,8 @@ class DriftMonitor:
         idx_base = rng.choice(len(X_base), size=min(sample_n, len(X_base)), replace=False)
         idx_drift = rng.choice(len(X_drifted), size=min(sample_n, len(X_drifted)), replace=False)
 
-        explainer = shap.TreeExplainer(model)
+        underlying_model = model.named_estimators_['rf'] if hasattr(model, 'named_estimators_') and 'rf' in model.named_estimators_ else (model.named_estimators_['lgbm'] if hasattr(model, 'named_estimators_') else model)
+        explainer = shap.TreeExplainer(underlying_model)
         shap_base = explainer.shap_values(X_base[idx_base])
         shap_drift = explainer.shap_values(X_drifted[idx_drift])
 
@@ -106,19 +107,51 @@ class DriftMonitor:
         X_stream: np.ndarray,
         y_stream_oracle: np.ndarray,
         uncertainty_scores: np.ndarray,
-        is_unknown_attack: np.ndarray
-    ) -> Any:
+        is_unknown_attack: Optional[np.ndarray] = None,
+        strategy: str = 'hybrid'
+    ) -> Tuple[Any, np.ndarray]:
         """
-        Selects top-B most uncertain flows (prioritizing confirmed Unknown-Attack / Zero-Days)
+        Selects top-B flows using hybrid cluster diversity + conformal uncertainty
+        (prioritizing zero-day clusters and high-uncertainty flows)
         and fine-tunes / retrains model with strict budget compliance.
         """
-        print(f"[Active Retrain] Querying oracle for top-{self.budget_retrain} most uncertain / zero-day flows...")
-        
-        # Priority score: High conformal uncertainty + priority boost for Zero-Day flows
-        priority = uncertainty_scores.copy()
-        priority[is_unknown_attack] += 5.0  # Strongly prioritize zero-day / unknown attacks
+        print(f"[Active Retrain] Querying oracle for {self.budget_retrain} flows (Strategy: {strategy})...")
+        from sklearn.cluster import MiniBatchKMeans
 
-        top_indices = np.argsort(priority)[-self.budget_retrain:]
+        if strategy == 'hybrid':
+            from sklearn.preprocessing import RobustScaler
+            scaler = RobustScaler()
+            X_stream_scaled = np.nan_to_num(scaler.fit_transform(X_stream), nan=0.0, posinf=1e4, neginf=-1e4)
+
+            n_clusters = max(5, min(30, self.budget_retrain // 15))
+            kmeans = MiniBatchKMeans(n_clusters=n_clusters, random_state=self.seed, batch_size=min(1000, len(X_stream)))
+            clusters = kmeans.fit_predict(X_stream_scaled)
+
+            # 1. Cluster diversity portion (up to 70% of budget)
+            div_indices = []
+            rng = np.random.RandomState(self.seed)
+            samples_per_cluster = max(1, int(round((self.budget_retrain * 0.7) / n_clusters)))
+            for k in range(n_clusters):
+                k_idx = np.where(clusters == k)[0]
+                if len(k_idx) > 0:
+                    div_indices.extend(rng.choice(k_idx, size=min(len(k_idx), samples_per_cluster), replace=False))
+
+            # 2. Conformal uncertainty / unknown attack portion (remaining budget)
+            priority = uncertainty_scores.copy()
+            if is_unknown_attack is not None:
+                priority[is_unknown_attack] += 5.0
+            priority[div_indices] = -np.inf
+            rem_budget = self.budget_retrain - len(div_indices)
+            if rem_budget > 0:
+                unc_indices = np.argsort(priority)[-rem_budget:].tolist()
+                top_indices = np.array(list(set(div_indices + unc_indices)))
+            else:
+                top_indices = np.array(div_indices[:self.budget_retrain])
+        else:
+            priority = uncertainty_scores.copy()
+            if is_unknown_attack is not None:
+                priority[is_unknown_attack] += 5.0
+            top_indices = np.argsort(priority)[-self.budget_retrain:]
 
         X_active = X_stream[top_indices]
         y_active = y_stream_oracle[top_indices]
@@ -130,5 +163,5 @@ class DriftMonitor:
         # Retrain model
         retrained_model = model_factory()
         retrained_model.fit(X_augmented, y_augmented)
-        print(f"[Active Retrain] Model successfully retrained on {len(X_augmented):,} flows (budget: +{self.budget_retrain}).")
+        print(f"[Active Retrain] Model successfully retrained on {len(X_augmented):,} flows (budget: +{len(top_indices)}).")
         return retrained_model, top_indices

@@ -70,6 +70,7 @@ def run_experiment():
 
     # Storage for multi-seed metrics: {model_name: {metric_name: [seed_val1, ...]}}
     models_to_track = [
+        'Proposed-TwoStage-Adapted',
         'Proposed-TwoStage-SHAP',
         'LightGBM-Balanced',
         'CatBoost-Balanced',
@@ -223,7 +224,7 @@ def run_experiment():
         # NOVELTY 3: ADWIN Drift Monitor + Selective Active Retraining
         # ---------------------------------------------------------------------
         print(f"\n--- [Seed {seed}] Evaluating Novelty 3: Drift Monitor & Selective Retraining ---")
-        drift_monitor = DriftMonitor(delta=0.002, budget_retrain=150, seed=seed)
+        drift_monitor = DriftMonitor(delta=0.002, budget_retrain=500, seed=seed)
         drift_events = drift_monitor.monitor_stream(triage_results['p_values'])
         
         # Attribution drift via 1-Wasserstein distance
@@ -231,22 +232,34 @@ def run_experiment():
             two_stage.stage1_clf, X_cal_sel, X_test_sel, feature_names=sel_features, sample_n=300
         )
 
-        # Active Retraining with small budget (+150 flows)
+        # Active Retraining with hybrid representation cluster diversity + conformal uncertainty (+500 flows)
         retrained_stage1, active_indices = drift_monitor.selective_active_retrain(
-            model_factory=lambda: TwoStageDetector(target_fpr=0.001, seed=seed),
+            model_factory=lambda: TwoStageDetector(target_fpr=0.001, stage1_model_type='ensemble', seed=seed),
             X_train_orig=X_train_sel,
             y_train_orig=y_train_bin,
             X_stream=X_test_sel,
             y_stream_oracle=y_test_bin,
             uncertainty_scores=triage_results['conformal_entropy'],
-            is_unknown_attack=is_unknown
+            is_unknown_attack=is_unknown,
+            strategy='hybrid'
         )
 
         # Evaluate post-retraining recovery on remaining test stream
         eval_mask = np.ones(len(X_test_sel), dtype=bool)
         eval_mask[active_indices] = False
+        t_ad_s = time.perf_counter()
         p_test_retrained = retrained_stage1.predict_proba_binary(X_test_sel[eval_mask])
-        rec_post_retrain, _ = compute_recall_at_target_fpr(y_test_bin[eval_mask], p_test_retrained, target_fpr=0.001)
+        t_ad_e = time.perf_counter()
+        lat_adapted = ((t_ad_e - t_ad_s) / np.sum(eval_mask)) * 1e6
+        m_adapted = evaluate_intrusion_detector(y_test_bin[eval_mask], p_test_retrained, latency_per_sample_us=lat_adapted)
+
+        for k, v in [('recall_0.1%', 'recall_at_fpr_0.1%'), ('recall_0.01%', 'recall_at_fpr_0.01%'),
+                    ('pr_auc', 'pr_auc'), ('macro_f1', 'macro_f1'), ('bayes_p_1e-2', 'bayesian_precision_1e-2'),
+                    ('bayes_p_1e-3', 'bayesian_precision_1e-3'), ('bayes_p_1e-4', 'bayesian_precision_1e-4'),
+                    ('roc_auc', 'roc_auc'), ('accuracy', 'accuracy'), ('latency_us', 'latency_us')]:
+            metrics_storage['Proposed-TwoStage-Adapted'][k].append(m_adapted[v])
+
+        rec_post_retrain = m_adapted['recall_at_fpr_0.1%']
         rec_pre_retrain = metrics_two_stage['recall_at_fpr_0.1%']
         recovery_delta = (rec_post_retrain - rec_pre_retrain) * 100.0
 
@@ -259,11 +272,12 @@ def run_experiment():
             'top_drifted_feature': drift_df.iloc[0]['feature'],
             'top_wasserstein': drift_df.iloc[0]['wasserstein_drift']
         })
-        print(f"[Active Retrain] Recall @ 0.1% FPR: {rec_pre_retrain*100:.2f}% -> {rec_post_retrain*100:.2f}% (Gain: {recovery_delta:+.2f}%)")
+        print(f"[Active Retrain] Accuracy: {m_adapted['accuracy']*100:.2f}%, Recall @ 0.1% FPR: {rec_pre_retrain*100:.2f}% -> {rec_post_retrain*100:.2f}% (Gain: {recovery_delta:+.2f}%)")
 
         # Generate Explainability Artefacts for Seed 42
         if seed_idx == 0:
-            explainer = shap.TreeExplainer(two_stage.stage1_clf)
+            explainer_clf = two_stage.stage1_clf.named_estimators_['rf'] if hasattr(two_stage.stage1_clf, 'named_estimators_') and 'rf' in two_stage.stage1_clf.named_estimators_ else (two_stage.stage1_clf.named_estimators_['lgbm'] if hasattr(two_stage.stage1_clf, 'named_estimators_') else two_stage.stage1_clf)
+            explainer = shap.TreeExplainer(explainer_clf)
             # Find an alert instance (true attack flagged)
             flagged_attacks = np.where((p_test_binary >= two_stage.operational_threshold) & (y_test_bin == 1))[0]
             if len(flagged_attacks) > 0:
