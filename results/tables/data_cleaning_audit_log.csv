@@ -1,0 +1,5 @@
+Step,Records Retained,Records Removed,Details
+1. Raw Ingestion,2830743,0,Initial 8 CSV files
+2. Deduplication,2522362,308381,Mirror/tap duplicate flows
+3. Inf/NaN Dropping,2520798,1564,Flow rate division-by-zero
+4. Feature Pruning,2520798,0,Dropped 9 constant/redundant features
