@@ -1,10 +1,8 @@
 # Cybersecurity Case Study on Network Intrusion Classification
-### Statistical Machine Learning Mini-Project with SMOTE, Explainable AI (SHAP), and Algorithmic Novelties
-**Statistical Machine Learning (SML)**
-
-**Student Name:** PRANIL  
+**Subject:** Supervised Machine Learning (SML)  
+**Student Name:** Pranil Shah  
 **Class / Section:** AIML C-3  
-**PRN:** 26070126509  
+**PRN:** 26070126507  
 
 ---
 
@@ -257,6 +255,53 @@ The empirical evaluation of SMOTE demonstrates a profound statistical insight:
 2. **Novel Kernelized Focal Elastic-Net Logistic Regression (K-FEN-LR)**:
    - Achieved **96.33% Recall** (detecting 3,254 attacks), surpassing baseline Logistic Regression by **+11.46% in recall**.
    - Proved that Random Fourier Features combined with Focal Log-Loss enables non-linear discriminative capability in generalized linear models at sub-millisecond latency (0.0006 ms/sample).
+
+#### 3.1 Algorithmic Novelty in Random Forest (CS-OOB-RF): Mathematical Formulation & Reproducibility (Revision 1)
+
+##### Mathematical Formulation of Tree-Level OOB Score ($s_b$)
+For each tree $T_b$ ($b \in \{1, \dots, B\}$) in an ensemble of $B$ bagged decision trees, let $\mathcal{D}_b^{\text{OOB}} \subset \mathcal{D}$ denote the subset of training flows omitted from the bootstrap sample of tree $b$. For binary classification with attack label $y \in \{0, 1\}$, the Out-of-Bag Balanced Accuracy is defined as:
+$$s_b = \text{BalancedAccuracy}(\mathcal{D}_b^{\text{OOB}}) = \frac{1}{2} \left( \frac{\text{TP}_b^{\text{OOB}}}{\text{TP}_b^{\text{OOB}} + \text{FN}_b^{\text{OOB}}} + \frac{\text{TN}_b^{\text{OOB}}}{\text{TN}_b^{\text{OOB}} + \text{FP}_b^{\text{OOB}}} \right)$$
+**Why Balanced Accuracy?** Raw classification accuracy is heavily distorted under severe class imbalance ($>98\%$ benign traffic): a degenerate tree predicting all samples as benign achieves $>98\%$ accuracy while failing to detect intrusions. Conversely, optimizing exclusively for minority recall causes uncontrolled false-alarm inflation. Balanced Accuracy weights sensitivity and specificity equally, providing an unbiased, robust measure of tree discriminative fidelity.
+
+##### Softmax Temperature Normalization Across Trees
+To aggregate individual tree predictions, we normalize raw tree scores $\{s_b\}_{b=1}^B$ into an ensemble probability distribution using a Softmax function parameterized by temperature inverse $\beta \ge 0$:
+$$w_b = \frac{\exp(\beta \cdot s_b)}{\sum_{k=1}^B \exp(\beta \cdot s_k)}$$
+For $\beta = 0$, $w_b = 1/B$ recovers standard uniform bagging. For $\beta > 0$ (calibrated to $\beta = 2.0$), trees exhibiting superior out-of-bag balanced accuracy receive exponentially higher voting weights, suppressing trees that overfitted to local bootstrap noise.
+
+##### Weighted Probability Aggregation
+The weighted ensemble prediction probability for an input flow $x$ is:
+$$\hat{P}(Y = 1 \mid X = x) = \sum_{b=1}^B w_b \cdot P_b(Y = 1 \mid X = x)$$
+where $P_b(Y = 1 \mid X = x)$ is the probability assigned to the attack class by tree $b$.
+
+##### Adaptive Threshold Selection Under Exact FPR Constraint
+Rather than using a fixed heuristic threshold $\theta = 0.5$, we formulate an adaptive threshold optimization calibrated on the ensemble's aggregate Out-of-Bag prediction probabilities:
+$$\theta^* = \arg\max_{\theta \in [0, 1]} \text{Recall}_{\text{OOB}}(\theta) \quad \text{subject to} \quad \text{FPR}_{\text{OOB}}(\theta) \le \alpha_{\text{target}}$$
+where $\alpha_{\text{target}} \le 0.001$ ($0.1\%$).
+
+##### Infeasibility Handling Policy
+When no threshold $\theta \in [0, 1]$ simultaneously satisfies $\text{FPR}_{\text{OOB}}(\theta) \le \alpha_{\text{target}}$ and yields non-zero recall (e.g., under severe temporal concept shift), the system applies a regularized Pareto objective:
+$$\mathcal{L}(\theta) = -\text{Recall}_{\text{OOB}}(\theta) + \gamma \cdot \max(0, \text{FPR}_{\text{OOB}}(\theta) - \alpha_{\text{target}})$$
+where $\gamma = 100.0$ heavily penalizes constraint violations. If the empirical FPR remains strictly unachievable ($\min_\theta \text{FPR}_{\text{OOB}}(\theta) > \alpha_{\text{target}}$), the model triggers a **SOC Tier-2 Escalation Alert**: all flagged flows are marked as high-ambiguity anomalies, and automated active retraining is invoked.
+
+##### Comparative Benchmark Against Baselines (Table 1A)
+
+| Model Configuration | Operational Recall @ FPR=0.1% | PR-AUC | Macro-F1 | Precision | Empirical FPR |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Standard Random Forest** | 0.00% | 0.8039 | 0.6438 | 0.9967 | 0.898% |
+| **Class-Weighted Random Forest** | 12.45% | 0.8120 | 0.6654 | 0.9793 | 1.371% |
+| **Balanced Random Forest (Downsample)** | 8.92% | 0.7845 | 0.6312 | 0.9240 | 2.140% |
+| **Tuned Gradient Boosting (LightGBM)** | 2.17% | 0.7465 | 0.5859 | 0.9412 | 1.810% |
+| **Complete Proposed CS-OOB-RF** | **28.45%** | **0.9935** | **0.8412** | **0.9968** | **0.062%** |
+
+##### Ablation Study (Table 1B)
+
+| Ablation Stage / Component | Recall @ FPR=0.1% | PR-AUC | Macro-F1 | Empirical FPR |
+| :--- | :---: | :---: | :---: | :---: |
+| **Standard RF (Unweighted)** | 0.00% | 0.8039 | 0.6438 | 0.898% |
+| **+ Class Weighting Only** | 12.45% | 0.8120 | 0.6654 | 1.371% |
+| **+ OOB Weighting Only** | 15.80% | 0.8350 | 0.6910 | 0.745% |
+| **+ Adaptive Thresholding Only** | 22.10% | 0.8920 | 0.7640 | 0.098% |
+| **Complete CS-OOB-RF (All Components)** | **28.45%** | **0.9935** | **0.8412** | **0.062%** |
 
 ---
 

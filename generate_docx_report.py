@@ -128,25 +128,17 @@ def build_report():
     r_title.font.bold = True
     r_title.font.color.rgb = RGBColor(0x11, 0x18, 0x27)
 
-    p_sub1 = doc.add_paragraph()
-    p_sub1.paragraph_format.space_after = Pt(2)
-    r_sub1 = p_sub1.add_run("Statistical Machine Learning Mini-Project with SMOTE, Explainable AI (SHAP), and Algorithmic Novelties")
-    r_sub1.font.name = 'Times New Roman'
-    r_sub1.font.size = Pt(12)
-    r_sub1.font.bold = True
-    r_sub1.font.color.rgb = RGBColor(0x37, 0x41, 0x51)
 
-    p_sub2 = doc.add_paragraph()
-    p_sub2.paragraph_format.space_after = Pt(8)
-    r_sub2 = p_sub2.add_run("Statistical Machine Learning (SML)")
-    r_sub2.font.name = 'Times New Roman'
-    r_sub2.font.size = Pt(11)
-    r_sub2.font.italic = True
-    r_sub2.font.color.rgb = RGBColor(0x4B, 0x55, 0x63)
+
+    p_meta0 = doc.add_paragraph()
+    p_meta0.paragraph_format.space_after = Pt(2)
+    r_meta0 = p_meta0.add_run("Subject: Supervised Machine Learning (SML)")
+    r_meta0.font.name = 'Times New Roman'
+    r_meta0.font.bold = True
 
     p_meta1 = doc.add_paragraph()
     p_meta1.paragraph_format.space_after = Pt(2)
-    r_meta1 = p_meta1.add_run("Student Name: PRANIL")
+    r_meta1 = p_meta1.add_run("Student Name: Pranil Shah")
     r_meta1.font.name = 'Times New Roman'
     r_meta1.font.bold = True
 
@@ -157,8 +149,9 @@ def build_report():
 
     p_meta3 = doc.add_paragraph()
     p_meta3.paragraph_format.space_after = Pt(12)
-    r_meta3 = p_meta3.add_run("PRN: 26070126509")
+    r_meta3 = p_meta3.add_run("PRN: 26070126507")
     r_meta3.font.name = 'Times New Roman'
+    r_meta3.font.bold = True
 
     def add_h1(text):
         h = doc.add_paragraph()

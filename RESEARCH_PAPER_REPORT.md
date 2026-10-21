@@ -1,6 +1,7 @@
 # Beyond Random Splits: A Drift-Aware, Explainable and Cost-Sensitive Framework for Generalisable Network Intrusion Detection
 
-**Authors:** Research Team in Statistical Machine Learning & Network Telemetry Security  
+**Author:** Pranil Shah (PRN: 26070126507, AIML C-3)  
+**Subject:** Supervised Machine Learning (SML)  
 **Benchmark Telemetry:** Authentic Canadian Institute for Cybersecurity (CIC-IDS2017) Flows  
 **Evaluation Protocol:** 5-Seed Repeated Temporal Shift Protocol with Multi-Hypothesis Statistical Testing  
 **Artifact Repository:** [`/Users/pranil/Desktop/SML`](file:///Users/pranil/Desktop/SML)

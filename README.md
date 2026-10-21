@@ -192,6 +192,7 @@ where $\bar{\phi}_j = \frac{1}{2}(\bar{\phi}_{j, D_1} + \bar{\phi}_{j, D_2})$, w
 ```
 SML/
 ├── network_intrusion_classification.ipynb  # Master Jupyter Notebook (all 51 cells executed)
+├── Network_Intrusion_Classification_Report.pdf  # Comprehensive 23-Page Formatted PDF Report
 ├── Network_Intrusion_Classification_Report.docx # Formatted IEEE/ACM Word Research Report
 ├── REPORT.md                              # Comprehensive Academic Project Report
 ├── RESEARCH_PAPER_REPORT.md               # Full Research Paper Manuscript
@@ -249,6 +250,6 @@ python generate_docx_report.py
 
 ## Authors & Citation
 
-**Author:** Pranil Shah (AIML C-3, PRN: 26070126509)  
-**Project:** Statistical Machine Learning (SML) Academic Project  
+**Author:** Pranil Shah (AIML C-3, PRN: 26070126507)  
+**Subject:** Supervised Machine Learning (SML) Academic Project  
 **Benchmark Telemetry:** Canadian Institute for Cybersecurity (CIC-IDS2017)  

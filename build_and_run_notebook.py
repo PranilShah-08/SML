@@ -32,10 +32,9 @@ def build_notebook():
     # SECTION 1: Project Title and Abstract
     # =========================================================================
     sec1_md = r"""# Network Intrusion Classification Using Statistical Machine Learning
-## An Advanced Empirical Study with SMOTE, Explainable AI (SHAP), and Algorithmic Novelties on CIC-IDS2017
 
-**Author**: Academic Data Science & Machine Learning Research Team  
-**Course**: Statistical Machine Learning (SML)  
+**Author**: Pranil Shah (AIML C-3, PRN: 26070126507)  
+**Subject**: Supervised Machine Learning (SML)  
 **Deliverable**: Comprehensive, Fully Reproducible Research Notebook (`network_intrusion_classification.ipynb`)
 
 ---
