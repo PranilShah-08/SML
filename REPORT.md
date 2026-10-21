@@ -181,7 +181,7 @@ We integrate cooperative game theory via `shap.TreeExplainer` (Lundberg & Lee, 2
 ---
 
 ## Implementation
-The complete experimental pipeline was executed end-to-end in Python 3.11 using `scikit-learn` (1.9.1), `imbalanced-learn` (0.14.2), `shap` (0.51.0), `pandas` (3.0.6), `NumPy` (2.4.6), `SciPy` (1.17.1), `matplotlib` (3.11.2), and `seaborn` (0.13.2) within a self-contained Jupyter Notebook ([`network_intrusion_classification.ipynb`](file:///Users/pranil/Desktop/SML/network_intrusion_classification.ipynb)). All 51 cells executed cleanly in 213.9 seconds.
+The complete experimental pipeline was executed end-to-end in Python 3.11 using `scikit-learn` (1.9.1), `imbalanced-learn` (0.14.2), `shap` (0.51.0), `pandas` (3.0.6), `NumPy` (2.4.6), `SciPy` (1.17.1), `matplotlib` (3.11.2), and `seaborn` (0.13.2) within a self-contained Jupyter Notebook ([`notebook.ipynb`](file:///Users/pranil/Desktop/SML/notebook.ipynb)). All 51 cells executed cleanly in 213.9 seconds.
 
 All figures below derive directly from our live execution:
 

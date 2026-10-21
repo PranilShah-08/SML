@@ -87,7 +87,7 @@ class ExplainabilityReporter:
         ])
 
         report_text = "\n".join(report_lines)
-        report_file = os.path.join("results", "why_drift_happened_report.md")
+        report_file = os.path.join("results", "drift_analysis.md")
         with open(report_file, "w") as f:
             f.write(report_text)
         return report_text

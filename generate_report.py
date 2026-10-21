@@ -443,7 +443,7 @@ def build_report():
     r_t1a.font.bold = True
     r_t1a.font.size = Pt(9.5)
     
-    rev1_csv = "results/tables/revision1_csoobrf_ablation_benchmark.csv"
+    rev1_csv = "results/tables/ablation_csoobrf.csv"
     if os.path.exists(rev1_csv):
         df_r1_all = pd.read_csv(rev1_csv)
         # Select baseline models
@@ -531,7 +531,7 @@ def build_report():
     doc.add_paragraph(
         "The complete experimental pipeline was executed end-to-end in Python 3.11 using scikit-learn (1.9.1), imbalanced-learn (0.14.2), "
         "shap (0.51.0), pandas (3.0.6), NumPy (2.4.6), SciPy (1.17.1), matplotlib (3.11.2), and seaborn (0.13.2) within a self-contained Jupyter Notebook "
-        "(network_intrusion_classification.ipynb). All 51 cells executed cleanly in 213.9 seconds. Visualizations and diagnostic charts generated "
+        "(notebook.ipynb). All 51 cells executed cleanly in 213.9 seconds. Visualizations and diagnostic charts generated "
         "directly from computed predictions are illustrated below."
     )
 
@@ -867,7 +867,7 @@ def build_report():
     r_t2.font.bold = True
     r_t2.font.size = Pt(9.5)
 
-    stat_csv = "results/tables/revision2_statistical_rigor_analysis.csv"
+    stat_csv = "results/tables/statistical_rigor.csv"
     if os.path.exists(stat_csv):
         df_stat_tbl = pd.read_csv(stat_csv)
         disp_cols_s = ['Comparison', 'Mean Delta Recall@0.1%', '95% CI', 'Cohen d', 'Cliff Delta', 'Rank-Biserial r', 'Wilcoxon p-val', 'Holm-Adjusted p']
@@ -910,7 +910,7 @@ def build_report():
     r_t3.font.bold = True
     r_t3.font.size = Pt(9.5)
 
-    feat_csv = "results/tables/revision3_shap_stability_temporal_benchmark.csv"
+    feat_csv = "results/tables/shap_stability.csv"
     if os.path.exists(feat_csv):
         df_feat_tbl = pd.read_csv(feat_csv)
         add_df_table(doc, df_feat_tbl, font_size=7.5, header_bg="1E293B")
@@ -1001,7 +1001,7 @@ def build_report():
     doc.add_paragraph("[10] Bifet, A., & Gavaldà, R. (2007). Learning from time-changing data with adaptive windowing. In SIAM SDM (pp. 443-448).")
     doc.add_paragraph("[11] Gorissen, D., et al. (2021). FT-Transformer: Revisiting deep learning models for tabular data. In NeurIPS (pp. 18932-18943).")
 
-    out_path = "Network_Intrusion_Classification_Report.docx"
+    out_path = "Report.docx"
     doc.save(out_path)
     print(f"Report successfully saved to {out_path}!")
 

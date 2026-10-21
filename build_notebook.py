@@ -35,7 +35,7 @@ def build_notebook():
 
 **Author**: Pranil Shah (AIML C-3, PRN: 26070126507)  
 **Subject**: Supervised Machine Learning (SML)  
-**Deliverable**: Comprehensive, Fully Reproducible Research Notebook (`network_intrusion_classification.ipynb`)
+**Deliverable**: Comprehensive, Fully Reproducible Research Notebook (`notebook.ipynb`)
 
 ---
 
@@ -1773,7 +1773,7 @@ print(json.dumps(experiment_metadata['Key Results Summary'], indent=2))
     return nb
 
 if __name__ == '__main__':
-    notebook_path = 'network_intrusion_classification.ipynb'
+    notebook_path = 'notebook.ipynb'
     print(f"Building {notebook_path}...")
     nb = build_notebook()
     with open(notebook_path, 'w') as f:

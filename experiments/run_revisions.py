@@ -369,7 +369,7 @@ def run_all_evaluations():
         })
 
     df_rev1 = pd.DataFrame(rev1_results)
-    df_rev1.to_csv(os.path.join(TABLES_DIR, "revision1_csoobrf_ablation_benchmark.csv"), index=False)
+    df_rev1.to_csv(os.path.join(TABLES_DIR, "ablation_csoobrf.csv"), index=False)
     print("\nRevision 1 Results Table:")
     print(df_rev1.to_string(index=False))
 
@@ -446,7 +446,7 @@ def run_all_evaluations():
         row['Holm-Adjusted p'] = f"{holm_p:.4f}"
 
     df_stat = pd.DataFrame(stat_comparisons)
-    df_stat.to_csv(os.path.join(TABLES_DIR, "revision2_statistical_rigor_analysis.csv"), index=False)
+    df_stat.to_csv(os.path.join(TABLES_DIR, "statistical_rigor.csv"), index=False)
     print("\nRevision 2 Statistical Results Table:")
     print(df_stat.to_string(index=False))
 
@@ -557,7 +557,7 @@ def run_all_evaluations():
         })
 
     df_feat = pd.DataFrame(feature_eval_results)
-    df_feat.to_csv(os.path.join(TABLES_DIR, "revision3_shap_stability_temporal_benchmark.csv"), index=False)
+    df_feat.to_csv(os.path.join(TABLES_DIR, "shap_stability.csv"), index=False)
     print("\nRevision 3 Temporal Generalization Results Table:")
     print(df_feat.to_string(index=False))
 

@@ -310,7 +310,7 @@ The experimental execution generated publication-ready figures and tables in [`r
 - **LaTeX Table 1**: [`results/tables/table1_benchmark_latex.tex`](results/tables/table1_benchmark_latex.tex)
 - **SHAP Stability Rankings**: [`results/tables/shap_stability_rankings.csv`](results/tables/shap_stability_rankings.csv)
 - **Comprehensive JSON Telemetry**: [`results/framework_benchmark_results.json`](results/framework_benchmark_results.json)
-- **Root-Cause Incident Report**: [`results/why_drift_happened_report.md`](results/why_drift_happened_report.md)
+- **Root-Cause Incident Report**: [`results/drift_analysis.md`](results/drift_analysis.md)
 - **Figure 1 (Recall @ FPR Comparison)**: [`results/figures/operational_recall_at_fpr_comparison.png`](results/figures/operational_recall_at_fpr_comparison.png)
 - **Figure 2 (Bayesian Precision vs. Prior)**: [`results/figures/bayesian_precision_curve.png`](results/figures/bayesian_precision_curve.png)
 - **Figure 3 (Nemenyi Critical Difference Diagram)**: [`results/figures/nemenyi_critical_difference.png`](results/figures/nemenyi_critical_difference.png)

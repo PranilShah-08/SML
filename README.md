@@ -191,16 +191,17 @@ where $\bar{\phi}_j = \frac{1}{2}(\bar{\phi}_{j, D_1} + \bar{\phi}_{j, D_2})$, w
 
 ```
 SML/
-├── network_intrusion_classification.ipynb  # Master Jupyter Notebook (all 51 cells executed)
-├── Network_Intrusion_Classification_Report.pdf  # Comprehensive 23-Page Formatted PDF Report
-├── Network_Intrusion_Classification_Report.docx # Formatted IEEE/ACM Word Research Report
+├── notebook.ipynb                         # Master Jupyter Notebook (all 51 cells executed)
+├── Report.pdf                             # Comprehensive 23-Page Formatted PDF Report
+├── Report.docx                            # Formatted IEEE/ACM Word Research Report
 ├── REPORT.md                              # Comprehensive Academic Project Report
-├── RESEARCH_PAPER_REPORT.md               # Full Research Paper Manuscript
-├── build_and_run_notebook.py              # Automated programmatic notebook builder & runner
-├── generate_docx_report.py                # Automated DOCX report generator
+├── PAPER.md                               # Full Research Paper Manuscript
+├── build_notebook.py                      # Automated programmatic notebook builder & runner
+├── generate_report.py                     # Automated DOCX report generator
 ├── experiments/
-│   ├── run_full_framework.py              # 5-Seed Master Benchmark Driver (15 models)
-│   └── plot_benchmark_visualizations.py  # Visualization generator
+│   ├── run_benchmark.py                   # 5-Seed Master Benchmark Driver (15 models)
+│   ├── run_revisions.py                   # Statistical rigor & ablation benchmark suite
+│   └── plot_figures.py                    # Publication visualization generator
 ├── src/
 │   ├── data/harmonizer.py                 # NetFlow-v2 standardization & shortcut stripping
 │   ├── features/shap_selector.py          # Novelty 1: SHAP-stability feature selector
@@ -217,7 +218,11 @@ SML/
 │   ├── tables/                            # All benchmark tables (.csv)
 │   │   ├── master_model_comparison_table.csv
 │   │   ├── benchmark_multi_seed_summary.csv
+│   │   ├── ablation_csoobrf.csv
+│   │   ├── statistical_rigor.csv
+│   │   ├── shap_stability.csv
 │   │   └── table1_benchmark_latex.tex
+│   ├── drift_analysis.md                  # ADWIN & SHAP concept drift forensic report
 │   └── framework_benchmark_results.json   # Machine-readable experimental telemetry
 └── requirements.txt                       # Reproducible dependency specification
 ```
@@ -237,13 +242,16 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # 3. Run the full 5-seed benchmark
-python experiments/run_full_framework.py
+python experiments/run_benchmark.py
 
-# 4. Re-execute the complete 51-cell notebook
-python build_and_run_notebook.py
+# 4. Run the statistical rigor and ablation suite
+python experiments/run_revisions.py
 
-# 5. Regenerate the Word report
-python generate_docx_report.py
+# 5. Re-execute the complete 51-cell notebook
+python build_notebook.py
+
+# 6. Regenerate the Word report
+python generate_report.py
 ```
 
 ---
