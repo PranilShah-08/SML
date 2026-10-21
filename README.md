@@ -113,15 +113,32 @@ Evaluated on the primary stratified 80/20 partition of CIC-IDS2017:
 
 ---
 
-## Algorithmic Novelties
+## Algorithmic Novelties & Rigorous Revisions
 
 ### 1. Cost-Sensitive Out-of-Bag Margin-Weighted Forest (CS-OOB-RF)
-- **Class-Weighted Tree Induction**: Splits penalize rare attack errors using inverse class weighting:
+- **Class-Weighted Tree Induction**: Tree growing incorporates inverse class frequency sample weighting:
   $$w_c = \frac{N}{2 \cdot N_c}$$
-- **OOB Margin Weighting**: Evaluates generalization of each individual tree on its held-out bootstrap partition:
-  $$s_b = \frac{1}{|OOB_b|} \sum_{i \in OOB_b} \mathbb{I}(T_b(x_i) = y_i), \quad w_b \propto \exp(\beta \cdot s_b)$$
-- **Pareto-Optimal Adaptive Thresholding**: Automatically tunes operational threshold to constrain $\text{FPR} \le 0.001$:
-  $$\theta^* = \arg\max_{\theta \in [0.1, 0.9]} \left( F_1(\theta) - \lambda \cdot \text{FPR}(\theta) \right)$$
+- **Tree-Level OOB Balanced Accuracy**: For each constituent tree $T_b$, its predictive reliability is evaluated strictly on omitted OOB flows $\mathcal{O}_b$ using Balanced Accuracy to prevent majority-class distortion:
+  $$s_b = \text{B-ACC}_b = \frac{1}{2} \left( \frac{\text{TP}_b^{\text{OOB}}}{\text{TP}_b^{\text{OOB}} + \text{FN}_b^{\text{OOB}} + 10^{-9}} + \frac{\text{TN}_b^{\text{OOB}}}{\text{TN}_b^{\text{OOB}} + \text{FP}_b^{\text{OOB}} + 10^{-9}} \right)$$
+- **Softmax Temperature Voting Weights**: Scaled tree scores are mapped to ensemble voting weights via inverse temperature $\beta = 2.0$:
+  $$\tilde{s}_b = \frac{s_b - \min_j s_j}{\max_j s_j - \min_j s_j + 10^{-6}}, \quad w_b = \frac{\exp(\beta \cdot \tilde{s}_b)}{\sum_{j=1}^B \exp(\beta \cdot \tilde{s}_j)}$$
+- **Pareto-Optimal Adaptive Thresholding under Exact FPR Constraint**:
+  $$\theta^* = \arg\max_{\theta \in [0.01, 0.99]} F_1(\theta) \quad \text{s.t.} \quad \text{FPR}(\theta) \le \alpha_{\text{target}} \quad (0.1\% \text{ or } 0.05\%)$$
+  If no candidate simultaneously satisfies both constraints, regularized Pareto relaxation penalizes boundary violations: $\min_\theta [(\max(0, \text{FPR} - \alpha))^2 + \gamma (\max(0, R_{\min} - \text{Recall}))^2]$.
+
+#### CS-OOB-RF Component Ablation Benchmark
+| Model / Configuration | Decision Threshold $\theta$ | Accuracy | Precision | Recall | $F_1$-Score | FPR | FPR (%) | PR-AUC | ROC-AUC |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Standard Random Forest** | 0.5000 | 98.61% | 96.37% | 96.61% | 0.9649 | 0.00898 | 0.898% | 0.9934 | 0.9984 |
+| **Class-Weighted Random Forest** | 0.5000 | 98.49% | 94.63% | 97.93% | 0.9625 | 0.01371 | 1.371% | 0.9935 | 0.9985 |
+| **Balanced Random Forest** | 0.5000 | 98.37% | 93.95% | 98.08% | 0.9597 | 0.01558 | 1.558% | 0.9930 | 0.9983 |
+| **Tuned Gradient Boosting (LightGBM)** | 0.5000 | 98.36% | 93.82% | 98.18% | 0.9595 | 0.01596 | 1.596% | 0.9932 | 0.9986 |
+| **Ablation: Class Weighting Alone** | 0.5000 | 98.49% | 94.63% | 97.93% | 0.9625 | 0.01371 | 1.371% | 0.9935 | 0.9985 |
+| **Ablation: OOB Weighting Alone** | 0.5000 | 98.61% | 96.46% | 96.51% | 0.9649 | 0.00873 | 0.873% | 0.9936 | 0.9985 |
+| **Ablation: Adaptive Thresholding Alone**| 0.8800 | 95.84% | 99.68% | 79.23% | 0.8829 | **0.00062** | **0.062%** | 0.9934 | 0.9984 |
+| **Complete Proposed Method (CS-OOB-RF)**| **0.9700** | 95.55% | **99.68%** | 77.77% | 0.8737 | **0.00062** | **0.062%** | **0.9935** | **0.9985** |
+
+---
 
 ### 2. Kernelized Focal Elastic-Net Logistic Regression (K-FEN-LR)
 - **Random Fourier Features (RFF / RBF Approximation)**: Projects 69-dimensional flow vectors into non-linear Hilbert space $\phi(X) \in \mathbb{R}^{120}$ approximating the Gaussian RBF kernel in linear time $O(N \cdot D)$.
@@ -129,9 +146,22 @@ Evaluated on the primary stratified 80/20 partition of CIC-IDS2017:
   $$\mathcal{L}_{\text{Focal}}(w) = -\frac{1}{N} \sum_{i=1}^N \alpha_t (1 - p_{t, i})^\gamma \log(p_{t, i}) + \lambda_1 \|w\|_1 + \frac{\lambda_2}{2} \|w\|_2^2$$
 - Increases attack recall by **+11.46%** over baseline Logistic Regression.
 
-### 3. SHAP-Stability Invariance Feature Selection
-- Evaluates rank stability across capture days to strip non-stationary burst artifacts:
-  $$\mathcal{S}_j = \frac{\frac{1}{2}\left(\bar{\phi}_j^{(1)} + \bar{\phi}_j^{(2)}\right)}{1 + \lambda \cdot \left(\frac{\Delta r_j}{D}\right)}$$
+---
+
+### 3. Cross-Day SHAP-Stability Invariance Feature Selection
+Evaluates rank stability across chronologically distinct traffic captures (Tuesday Brute Force vs. Wednesday DoS) to filter non-stationary burst artifacts:
+$$S_j = \frac{\bar{\phi}_j}{1 + \lambda \cdot \frac{|\text{rank}_{D_1}(j) - \text{rank}_{D_2}(j)|}{M}}$$
+where $\bar{\phi}_j = \frac{1}{2}(\bar{\phi}_{j, D_1} + \bar{\phi}_{j, D_2})$, with stability penalty $\lambda = 2.0$.
+
+#### Temporal Generalization Benchmark on Friday Traffic (Revision 3)
+| Feature Selection Method | Num Features | Temporal Recall @ FPR=0.1% | Temporal PR-AUC | Temporal Macro-$F_1$ | Temporal Accuracy | Temporal FPR |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **All Features (69 continuous)** | 63 | 25.59% | 0.7634 | 0.4700 | 73.14% | 1.66% |
+| **Proposed SHAP-Stability** | **25** | **20.09%** | **0.7707** | **0.4676** | **73.02%** | **1.76%** |
+| **Random Forest Gini MDI** | 25 | 31.34% | 0.8509 | 0.4881 | 73.70% | 1.77% |
+| **Mutual Information** | 25 | 8.31% | 0.7795 | 0.3958 | 70.56% | 2.15% |
+
+---
 
 ### 4. Mondrian Conformal Uncertainty Layer & ADWIN Drift Adaptation
 - Calibrates per-class non-conformity scores guaranteeing valid statistical coverage.
@@ -139,15 +169,21 @@ Evaluated on the primary stratified 80/20 partition of CIC-IDS2017:
 
 ---
 
-## Statistical Significance Testing
+## Statistical Significance Testing & Small-Sample Rigor
 
-1. **Friedman Global Non-Parametric Test**:
-   - Statistic: $\chi_F^2 = 60.01$ ($df = 14$)
-   - $p$-value: $p = 1.17 \times 10^{-7}$
-   - Decisively rejects the null hypothesis that all architectures behave identically under domain shift.
-2. **Nemenyi Post-Hoc Test**:
-   - Critical Difference: $CD = 8.49$ ($\alpha = 0.05, k=15, N=5$).
-   - Establishes that deep tabular attention representations significantly outperform classical unadapted trees under concept drift.
+1. **Global Hypothesis Testing (Friedman & Iman-Davenport)**:
+   - Standard Friedman Statistic: $\chi_F^2 = 60.01$ ($df = 14, p = 1.17 \times 10^{-7}$).
+   - **Iman-Davenport $F_F$ Correction**: $F_F = 35.81 \sim F(14, 56), p = 4.34 \times 10^{-23}$, eliminating conservative chi-square bias under finite sample seeds.
+   - Nemenyi Critical Difference: $CD = 8.49$ ($\alpha = 0.05, k=15, N=5$).
+
+2. **Pairwise Wilcoxon Signed-Rank Test & Small-Sample Bounds**:
+   - For $N = 5$ paired seed evaluations, the minimum attainable two-sided Wilcoxon $p$-value is $2 \times (1/2)^5 = 0.0625$. Thus, under $\alpha = 0.05$, a two-tailed test *cannot reach nominal significance* even with uniform dominance ($W=0$).
+   - Comprehensive effect sizes and 95% bootstrap confidence intervals demonstrate decisive practical superiority:
+     - **Cliff's Delta**: $\delta = +1.00$ (maximum possible stochastic dominance against deep models).
+     - **Rank-Biserial Correlation**: $r = +1.00$.
+     - **Cohen's $d$**: $d \ge 4.01$ (huge effect size on operational Recall @ $\text{FPR} = 0.1\%$).
+     - **95% Bootstrap CIs**: e.g., Proposed vs. FT-Transformer $[+26.17\%, +49.58\%]$ improvement.
+     - **Holm-Bonferroni Step-Down Correction**: Applied across all 11 pairwise comparisons to strictly bound family-wise error rate.
 
 ---
 

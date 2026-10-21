@@ -654,6 +654,7 @@ Standard Logistic Regression fails in NIDS due to two fundamental architectural 
 
     sec11_models_code = r"""from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble._forest import _generate_unsampled_indices
 from sklearn.svm import LinearSVC
 from sklearn.calibration import CalibratedClassifierCV
 from sklearn.neighbors import KNeighborsClassifier
@@ -705,45 +706,104 @@ class KernelizedFocalElasticNetLR(BaseEstimator, ClassifierMixin):
 
 # 3. Novel Architecture: Cost-Sensitive OOB Margin-Weighted Random Forest
 class CostSensitiveOOBRandomForest(BaseEstimator, ClassifierMixin):
-    def __init__(self, n_estimators=100, max_depth=15, min_samples_split=5, target_fpr=0.001, random_state=42):
+    def __init__(self, n_estimators=100, max_depth=15, min_samples_split=5,
+                 target_fpr=0.001, beta=1.0, random_state=42):
         self.n_estimators = n_estimators
         self.max_depth = max_depth
         self.min_samples_split = min_samples_split
         self.target_fpr = target_fpr
+        self.beta = beta
         self.random_state = random_state
         self.rf = RandomForestClassifier(
             n_estimators=n_estimators, max_depth=max_depth,
             min_samples_split=min_samples_split, class_weight='balanced_subsample',
-            oob_score=True, n_jobs=-1, random_state=random_state
+            oob_score=True, bootstrap=True, n_jobs=-1, random_state=random_state
         )
         self.optimal_threshold_ = 0.5
+        self.tree_weights_ = None
+        self.tree_oob_scores_ = []
         
     def fit(self, X, y):
         self.rf.fit(X, y)
-        # Calibrate adaptive threshold on OOB probabilities
-        oob_probs = self.rf.oob_decision_function_[:, 1]
+        n_samples = X.shape[0]
+        n_trees = len(self.rf.estimators_)
+        raw_scores = []
+        
+        # Calculate tree-level OOB Balanced Accuracy
+        for b, estimator in enumerate(self.rf.estimators_):
+            unsampled_indices = _generate_unsampled_indices(
+                estimator.random_state, n_samples, n_samples
+            )
+            if len(unsampled_indices) == 0:
+                raw_scores.append(0.5)
+                continue
+            X_oob = X[unsampled_indices]
+            y_oob = y[unsampled_indices]
+            preds_oob = estimator.predict(X_oob)
+            
+            # Balanced accuracy = (TPR + TNR) / 2
+            tp = np.sum((y_oob == 1) & (preds_oob == 1))
+            fn = np.sum((y_oob == 1) & (preds_oob == 0))
+            tn = np.sum((y_oob == 0) & (preds_oob == 0))
+            fp = np.sum((y_oob == 0) & (preds_oob == 1))
+            rec_pos = tp / (tp + fn + 1e-9) if (tp + fn) > 0 else 0.5
+            rec_neg = tn / (tn + fp + 1e-9) if (tn + fp) > 0 else 0.5
+            bal_acc = 0.5 * (rec_pos + rec_neg)
+            raw_scores.append(bal_acc)
+            
+        self.tree_oob_scores_ = np.array(raw_scores)
+        scaled_scores = self.beta * (self.tree_oob_scores_ - np.max(self.tree_oob_scores_))
+        exp_weights = np.exp(scaled_scores)
+        self.tree_weights_ = exp_weights / np.sum(exp_weights)
+        
+        # Calibrate adaptive threshold on ensemble OOB predictions
+        oob_probs = np.zeros(n_samples)
+        oob_counts = np.zeros(n_samples)
+        for b, estimator in enumerate(self.rf.estimators_):
+            unsampled_indices = _generate_unsampled_indices(
+                estimator.random_state, n_samples, n_samples
+            )
+            if len(unsampled_indices) > 0:
+                tree_proba = estimator.predict_proba(X[unsampled_indices])[:, 1]
+                w = self.tree_weights_[b]
+                oob_probs[unsampled_indices] += w * tree_proba
+                oob_counts[unsampled_indices] += w
+                
+        valid_mask = oob_counts > 0
+        oob_probs[valid_mask] /= oob_counts[valid_mask]
+        
+        # Search threshold to maximize Recall under target FPR constraint
+        valid_y = y[valid_mask]
+        valid_probs = oob_probs[valid_mask]
         best_th = 0.5
-        best_score = -1.0
-        # Search threshold to maximize F1 under target FPR constraint
-        for th in np.linspace(0.2, 0.8, 61):
-            preds = (oob_probs >= th).astype(int)
-            tn = np.sum((y == 0) & (preds == 0))
-            fp = np.sum((y == 0) & (preds == 1))
-            tp = np.sum((y == 1) & (preds == 1))
-            fn = np.sum((y == 1) & (preds == 0))
+        best_objective = -1e9
+        
+        for th in np.linspace(0.01, 0.99, 100):
+            preds = (valid_probs >= th).astype(int)
+            tn = np.sum((valid_y == 0) & (preds == 0))
+            fp = np.sum((valid_y == 0) & (preds == 1))
+            tp = np.sum((valid_y == 1) & (preds == 1))
+            fn = np.sum((valid_y == 1) & (preds == 0))
             fpr = fp / (tn + fp + 1e-9)
             rec = tp / (tp + fn + 1e-9)
-            prec = tp / (tp + fp + 1e-9)
-            f1 = 2 * prec * rec / (prec + rec + 1e-9)
-            score = f1 - 2.0 * max(0.0, fpr - self.target_fpr)
-            if score > best_score:
-                best_score = score
+            
+            # Penalized objective: Maximize recall subject to FPR <= target_fpr
+            penalty = 100.0 * max(0.0, fpr - self.target_fpr)
+            obj = rec - penalty
+            if obj > best_objective:
+                best_objective = obj
                 best_th = th
+                
         self.optimal_threshold_ = best_th
         return self
         
     def predict_proba(self, X):
-        return self.rf.predict_proba(X)
+        # Weighted ensemble prediction
+        probs = np.zeros((X.shape[0], 2))
+        for b, estimator in enumerate(self.rf.estimators_):
+            w = self.tree_weights_[b] if self.tree_weights_ is not None else (1.0 / len(self.rf.estimators_))
+            probs += w * estimator.predict_proba(X)
+        return probs
         
     def predict(self, X):
         probs = self.predict_proba(X)[:, 1]

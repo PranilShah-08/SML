@@ -1,0 +1,5 @@
+Feature Selection Method,Num Features,Temporal Recall @ FPR=0.1%,Temporal PR-AUC,Temporal Macro-F1,Temporal Accuracy,Temporal FPR
+All Features (69 continuous),63,25.59%,0.7634,0.4700,73.14%,1.66%
+Proposed SHAP-Stability (25 features),25,20.09%,0.7707,0.4676,73.02%,1.76%
+Random Forest Gini MDI (25 features),25,31.34%,0.8509,0.4881,73.70%,1.77%
+Mutual Information (25 features),25,8.31%,0.7795,0.3958,70.56%,2.15%

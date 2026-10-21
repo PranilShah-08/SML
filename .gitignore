@@ -41,6 +41,8 @@ ENV/
 ._*
 .Spotlight-V100
 .Trashes
+*.pages
+* 2.pdf
 
 # Editor directories and files
 .vscode/
